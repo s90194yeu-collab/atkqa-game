@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-Hant-TW">
 <head>
-<!-- 畫面空殼：由 Google Apps Script 讀取後提供給學生；程式與素材在 GitHub -->
+<!-- 由 tools/build.py 從 src/game.html 產生，請勿直接修改。程式與素材在 GitHub，由 Google Apps Script 提供給學生。 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#d6efff">
@@ -9,7 +9,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Huninn&family=Fredoka:wght@500;600;700&family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game.css?v=863947c80e">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/01-base.css?v=729e30dd4d">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/02-components.css?v=d0d367167f">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/03-home.css?v=22de588125">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/04-select.css?v=10a62f6cdf">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/05-battle.css?v=0d8f23bda2">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/06-overlays.css?v=7fb5b4fd83">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/07-screens.css?v=3cd5c81d64">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/08-codex.css?v=14559d8d93">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/09-landscape.css?v=c74f881f2b">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/10-growth.css?v=fc785dc697">
 </head>
 <body>
 
@@ -580,6 +589,30 @@
 </div>
 
 <script src="https://s90194yeu-collab.github.io/atkqa-game/assets/manifest.js?v=582b7d89ab"></script>
-<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game.js?v=eeba8e9b57"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/01-boot.js?v=1817ff20fd"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/02-config.js?v=e33984d425"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/03-characters.js?v=96c2c51c59"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/04-lore.js?v=30065daf5a"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/05-art.js?v=e2525b272a"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/06-spirits.js?v=8579046ec6"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/07-semester.js?v=a34ff8cf40"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/08-lessons.js?v=220611f3ef"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/09-audio.js?v=41741401a1"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/10-bgm.js?v=6ba6d7cbd2"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/11-scenes.js?v=a43c6f5503"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/12-status.js?v=fd368dae7f"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/13-fx.js?v=aab44ad4ce"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/14-state.js?v=5bb40f0ea1"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/15-select.js?v=50afb4e507"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/16-bank.js?v=0c6c6dcfc2"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/17-battle-setup.js?v=1581df24f1"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/18-battle-answer.js?v=4a87ce2086"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/19-battle-moves.js?v=197e259667"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/20-battle-forms.js?v=f30c165f04"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/21-battle-turn.js?v=f30456e921"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/22-save.js?v=1444aaa1ed"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/23-growth.js?v=911c95ecfe"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/24-result.js?v=ec345ebd0f"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/25-start.js?v=13036848e7"></script>
 </body>
 </html>

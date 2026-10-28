@@ -1,0 +1,85 @@
+/* 【06-overlays.css】全畫面卡片：開局狀態、密碼、倒下後的選項　（依檔名編號順序載入） */
+/* ============================================================
+   全畫面卡片：開局狀態、密碼、倒下後的選項
+   ============================================================ */
+/* 內容可能很長（立繪＋狀態＋小傳＋招式典故），
+   原本 justify-content:center 會讓內容上下溢出，
+   而 position:fixed 無法捲動 —— 按鈕就被推到畫面外按不到。
+   改成可捲動，並把按鈕釘在底部。 */
+.cond-card{
+  position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;
+  align-items:center;gap:10px;
+  padding:24px 18px calc(100px + env(safe-area-inset-bottom,0px));
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  background-color:rgba(236,232,255,.96);
+  background-image:radial-gradient(rgba(255,255,255,.9) 1.6px,transparent 1.8px);
+  background-size:24px 24px;
+}
+/* 內容不長時仍然置中，長的時候才靠上 */
+.cond-card > .cond-grid{margin:auto 0}
+.cond-card > .cta{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  z-index:2;width:min(420px,86vw);
+}
+.cond-card > .cta:active{transform:translateX(-50%) translateY(4px)}
+.cond-lab{
+  margin:0;display:inline-block;padding:3px 12px;border-radius:999px;
+  font-size:12.5px;font-weight:700;color:var(--ink-2);background:var(--paper-3);
+}
+.cond-card h3{margin:4px 0 0;font-family:var(--display);font-weight:400;font-size:clamp(23px,5.4vw,30px)}
+.cond-card > b{font-size:clamp(16px,4.4vw,20px);margin-bottom:8px}
+.cond-grid{
+  display:grid;gap:16px;width:min(980px,100%);padding:18px;border-radius:26px;
+  background:#fff;border:2.5px solid var(--line);box-shadow:var(--lift),var(--float);
+}
+@media(min-width:760px){ .cond-grid{grid-template-columns:minmax(260px,.9fr) 1.1fr;align-items:start} }
+.cond-main{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.cond-main > b{font-size:15px;color:var(--ink-2)}
+/* 立繪只有一張，放在左欄（今日狀態）；右欄的小傳專心放文字 */
+.cond-port{width:min(176px,40vw);aspect-ratio:4/5;margin:6px auto 4px;border-radius:20px;
+  overflow:hidden;border:3px solid #fff;box-shadow:0 0 0 2.5px var(--line);
+  background:radial-gradient(circle at 50% 34%,#fff 0 20%,transparent 60%),linear-gradient(180deg,#e3f2ff,#f4e8ff)}
+.cond-port img{width:100%;height:100%;object-fit:contain;display:block;padding:6px}
+@media(max-width:520px){
+  .cond-port{width:min(140px,36vw)}
+  .lore-text{font-size:.9rem;line-height:1.85}
+}
+.cond-lore{text-align:left;padding:4px 2px 0}
+@media(min-width:760px){ .cond-lore{border-left:2.5px dashed var(--line);padding:4px 0 0 18px} }
+@media(max-width:759px){ .cond-lore{border-top:2.5px dashed var(--line);padding:14px 0 0} }
+.cond-lore > .cond-lab{margin-bottom:8px}
+.lore-text{font-family:var(--serif);font-size:1rem;line-height:1.95;color:var(--ink);white-space:pre-wrap;margin-bottom:12px}
+.lore-moves{display:flex;flex-direction:column;gap:8px}
+.lore-mv{font-size:.88rem;line-height:1.7;color:var(--ink-2);padding:8px 12px;border-radius:14px;background:var(--paper-2)}
+.lore-mv b{color:var(--sakura-d);font-weight:800;margin-right:5px}
+.cond-list{display:grid;gap:7px;width:100%;max-width:360px;margin:4px auto 0}
+.cond-row{
+  display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;text-align:left;
+  padding:9px 14px;border-radius:14px;background:var(--paper-2);font-size:14px;
+}
+.cond-row b{font-weight:700}
+.cond-row em{font-style:normal;font-family:var(--hud);font-weight:600;font-size:14px}
+#cond-go{max-width:360px;width:100%}
+
+.pw-field{
+  width:100%;max-width:300px;margin-top:10px;padding:13px 16px;border-radius:16px;
+  border:2.5px solid var(--line-2);background:#fff;color:var(--ink);
+  font-family:var(--hud);font-size:20px;letter-spacing:.3em;text-align:center;
+}
+.pw-field:focus{outline:none;border-color:var(--sakura)}
+.pw-msg{margin:8px 0 0;font-size:13px;color:var(--ember);min-height:18px;font-weight:700}
+.pw-btns{display:flex;gap:10px;margin-top:12px;align-items:center}
+.pw-btns .cta{min-width:130px}
+#pw-box,#rv-box{justify-content:center}
+#rv-box h3{color:var(--ember)}
+.rv-list{display:grid;gap:9px;width:100%;max-width:440px;margin-top:6px}
+.rv-opt{
+  border:2.5px solid var(--line);border-radius:18px;padding:11px 14px;text-align:left;
+  background:#fff;box-shadow:0 4px 0 var(--line);position:relative;transition:transform .1s;
+}
+.rv-opt:hover:not(:disabled){border-color:#f0b400;transform:translateY(-2px)}
+.rv-opt.off{opacity:.4;cursor:not-allowed}
+.rv-opt b{display:block;font-size:15.5px}
+.rv-opt em{position:absolute;top:12px;right:14px;font-style:normal;font-family:var(--hud);font-weight:600;font-size:13px;color:var(--gold)}
+.rv-opt span{display:block;font-size:12.5px;color:var(--dim);line-height:1.6;margin-top:3px}

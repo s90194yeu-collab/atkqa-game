@@ -1,0 +1,25 @@
+/* 【09-landscape.css】橫向手機的版面壓縮　（依檔名編號順序載入） */
+/* ============================================================
+   橫向手機：壓縮高度，讓戰場一頁裝得下
+   ============================================================ */
+@media (max-height:520px) and (orientation:landscape){
+  .topbar{padding-top:4px;padding-bottom:4px}
+  .tb{padding:3px 10px;min-width:56px}
+  .tb b{font-size:18px}
+  .tb small{font-size:9.5px;margin-top:1px}
+  .mutebtn,.rules-btn{width:38px;height:38px}
+  .ticker{height:clamp(84px,20vh,140px)}
+  .stage{padding-top:4px;padding-bottom:8px;gap:8px}
+  .portrait{max-width:clamp(96px,30vh,150px)}
+  .hp{height:24px}
+  .qtext{font-size:16px;line-height:1.7}
+  .opt{padding:8px 10px}
+  .actionbar{padding-top:6px;padding-bottom:6px}
+  .actionbar .cta{padding:10px 20px;min-height:0}
+  .qsavebtn{min-width:56px;font-size:16px;border-radius:14px}
+  .select-body{padding-top:4px}
+  .dock{padding-top:6px;padding-bottom:6px}
+  .dock img{height:48px;width:40px}
+  .stats,.dock-moves{display:none}
+  .home{padding-top:12px}
+}

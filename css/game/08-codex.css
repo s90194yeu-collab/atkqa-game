@@ -1,0 +1,74 @@
+/* 【08-codex.css】角色清冊與稱號風格　（依檔名編號順序載入） */
+/* ============================================================
+   角色清冊與稱號風格
+   ============================================================ */
+.codex{max-width:1180px;margin:0 auto;width:100%;padding:4px var(--pad) 28px}
+.codex-note{font-size:13.5px;color:var(--ink-2);line-height:1.8;margin:0 0 12px;padding:10px 14px;border-radius:16px;background:rgba(255,255,255,.75)}
+.role-card{
+  border:2.5px solid var(--line);border-radius:22px;padding:14px;margin-bottom:14px;
+  background:#fff;box-shadow:var(--lift);
+}
+.role-card h3{margin:0 0 4px;font-family:var(--display);font-weight:400;font-size:19px;display:flex;align-items:center;gap:8px}
+.role-card p{margin:0 0 12px;font-size:13px;color:var(--dim)}
+.role-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
+.rs{border-radius:14px;padding:7px 10px;background:var(--paper-2)}
+.rs i{display:block;font-style:normal;font-size:11px;font-weight:700;color:var(--dim)}
+.rs b{display:block;font-family:var(--hud);font-weight:600;font-size:17px;margin-top:2px}
+.codex-sort{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
+.sortbtn{
+  padding:6px 13px;border-radius:999px;border:2.5px solid var(--line);
+  background:#fff;font-size:12.5px;font-weight:700;color:var(--ink-2);box-shadow:0 3px 0 var(--line);
+}
+.sortbtn.on{color:#fff;border-color:#6a49c8;background:var(--grape);box-shadow:0 3px 0 #6a49c8}
+.codex-list{display:grid;gap:10px}
+@media(min-width:760px){.codex-list{grid-template-columns:1fr 1fr}}
+@media(min-width:1100px){.codex-list{grid-template-columns:1fr 1fr 1fr}}
+.cx{
+  border:2.5px solid var(--line);border-radius:20px;padding:12px;
+  background:#fff;position:relative;overflow:hidden;box-shadow:0 4px 0 var(--line);
+}
+.cx::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--uc,var(--line))}
+.cx-top{display:flex;gap:10px;align-items:center;margin-bottom:9px}
+.cx-top img{
+  width:50px;height:62px;object-fit:contain;border-radius:12px;flex:0 0 auto;
+  background:color-mix(in srgb,var(--uc,#ccc) 16%,#fff);
+}
+.cx-name{min-width:0;flex:1}
+.cx-name b{display:block;font-size:14.5px;line-height:1.3}
+.cx-name span{font-size:11.5px;color:var(--dim)}
+.cx-pick{
+  flex:0 0 auto;padding:6px 12px;border-radius:999px;border:2.5px solid var(--line-2);
+  background:#fff;font-size:12px;font-weight:700;box-shadow:0 3px 0 var(--line-2);
+}
+.cx-pick:hover{border-color:var(--sakura);color:var(--sakura-d)}
+.cx-bars{display:grid;gap:5px;margin-bottom:8px}
+.cxb{display:grid;grid-template-columns:36px 1fr 42px;gap:6px;align-items:center;font-size:11px}
+.cxb i{font-style:normal;color:var(--dim);font-weight:700}
+.cxb u{display:block;height:8px;border-radius:999px;background:var(--paper-3);text-decoration:none;overflow:hidden}
+.cxb u b{display:block;height:100%;border-radius:999px}
+.cxb em{font-style:normal;font-family:var(--hud);font-weight:600;text-align:right;color:var(--ink)}
+.cx-txt{font-size:12.5px;line-height:1.75;color:var(--dim);border-top:2px dashed var(--paper-3);padding-top:8px}
+.cx-txt b{color:var(--ink);font-weight:700}
+.cx-stage{
+  position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:999px;
+  background:var(--lemon);color:var(--ink);
+}
+.style-grid{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:700px){.style-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1100px){.style-grid{grid-template-columns:1fr 1fr 1fr}}
+.style-card{
+  border:2.5px solid var(--line);border-radius:22px;padding:13px 14px;
+  background:#fff;text-align:left;box-shadow:0 4px 0 var(--line);transition:transform .1s;
+}
+.style-card:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.style-card.on{border-color:var(--sakura);box-shadow:0 4px 0 var(--sakura)}
+.style-card h4{margin:0 0 3px;font-family:var(--display);font-weight:400;font-size:18px;display:flex;align-items:center;gap:6px}
+.style-card .now{font-size:14px;font-weight:700;margin-bottom:8px}
+.style-tiers{display:grid;gap:3px}
+.style-tier{
+  display:grid;grid-template-columns:1fr auto;gap:8px;font-size:12px;
+  padding:3px 10px;border-radius:10px;background:var(--paper-2);color:var(--dim);
+}
+.style-tier.got{background:#e7fbf3;color:var(--ink)}
+.style-tier.cur{background:#fff3c4;color:var(--ink);font-weight:700}
+.style-tier em{font-style:normal;font-family:var(--hud);font-size:11px}

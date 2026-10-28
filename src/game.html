@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<!-- 畫面樣板：tools/build.py 會把 @STYLES／@SCRIPTS 換成實際的檔案清單，輸出到 pages/。請改這裡，不要直接改 pages/。 -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#d6efff">
+<title>關於答對率 等於攻擊力這件事</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Fredoka:wght@500;600;700&family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<!--@STYLES-->
+</head>
+<body>
+
+<!-- ══════════ 1. 選角 ══════════ -->
+<!-- ══════════ 0. 首頁 ══════════ -->
+<div class="cond-card" id="pw-box" hidden>
+  <p class="cond-lab">隱藏角色</p>
+  <h3>解鎖隱藏角色</h3>
+  <b style="color:var(--dim);font-size:13px">請輸入密碼</b>
+  <input class="pw-field" id="pw-input" type="password" autocomplete="off"
+         inputmode="text" placeholder="••••••••">
+  <p class="pw-msg" id="pw-msg"></p>
+  <div class="pw-btns">
+    <button class="cta" id="pw-ok">解鎖</button>
+    <button class="backbtn" id="pw-cancel">取消</button>
+  </div>
+</div>
+
+
+<div class="rotate-hint" id="rotate-hint">
+  <div class="rot-icon">📱</div>
+  <b>請將裝置轉為橫向</b>
+  <span>這款遊戲以橫式畫面設計，橫放才能看到完整的戰場與角色。</span>
+  <button class="ghostbtn" id="rot-ignore" style="margin-top:14px;max-width:220px">仍要以直向遊玩</button>
+</div>
+
+<button class="bgmbtn" id="btn-bgm" type="button" aria-label="背景音樂開關">🎵</button>
+<div class="bgm-toast" id="bgm-toast" role="status" hidden></div>
+<div class="screen on" id="scr-home">
+  <div class="home">
+    <header class="brand">
+    <p class="eyebrow">南山高中國文科</p>
+    <h1 class="logo"><span class="l1">關於答對率</span><br><span class="l2">等於攻擊力這件事</span></h1>
+    <p class="tagline">讀完課本的我，被英雄們搶著求出戰這件事</p>
+  </header>
+
+    <!-- 沒打完的挑戰放在最上面：手機上一打開就看得到 -->
+    <div class="resume" id="resume-box" hidden>
+      <div class="resume-txt">
+        <b id="resume-name"></b>
+        <span id="resume-info"></span>
+      </div>
+      <button id="btn-resume">接續上次進度</button>
+      <button id="btn-fresh">重新開始</button>
+    </div>
+
+    <div class="event-strip" id="event-strip" hidden></div>
+
+    <div class="lesson-box login" id="login-box" hidden>
+      <h3><span>成績紀錄</span></h3>
+      <b id="login-who"></b>
+      <p id="login-note"></p>
+      <div class="login-domains" id="login-domains"></div>
+      <button class="cta" id="btn-login" style="width:100%;margin-top:10px">用學校帳號登入</button>
+    </div>
+
+    <div class="lesson-box sem" id="sem-box" hidden>
+      <h3><span>學期積分</span><span id="sem-total-lab">學期總分</span></h3>
+      <div class="sem-head">
+        <div class="sem-badge">
+          <b id="sem-title">—</b>
+          <span id="sem-desc"></span>
+        </div>
+        <div class="sem-num"><b id="sem-total">0</b><i>分</i></div>
+      </div>
+      <div class="sem-track"><i id="sem-bar"></i></div>
+      <p class="sem-next" id="sem-next"></p>
+      <div class="sem-list" id="sem-lessons"></div>
+      <p class="sem-note">每一課只採計最高分，重複挑戰同一課不會累加，但可以刷新該課紀錄。</p>
+      <div class="rowbtn" style="margin-top:10px">
+        <button class="ghostbtn" id="btn-styles" style="margin-top:0">🏅 稱號風格</button>
+        <button class="ghostbtn" id="btn-stats" style="margin-top:0">📊 學習分析</button>
+      </div>
+      <button class="dangerbtn" id="btn-wipe">🗑️ 清除我的所有紀錄</button>
+    </div>
+
+    <div class="lesson-box growth" id="growth-box" hidden>
+      <h3><span>我的成長</span><span id="growth-sum"></span></h3>
+      <p class="opt-label">題型熟練度　<i class="ms-hint">出到這類題目時，每一級出招傷害 +3%</i></p>
+      <div class="mastery-grid" id="mastery-grid"></div>
+      <p class="opt-label">成就徽章　<b id="ach-count"></b></p>
+      <div class="ach-shelf" id="ach-shelf"></div>
+      <p class="ach-detail" id="ach-detail"><span>點徽章看達成條件</span></p>
+      <div class="rowbtn">
+        <button class="ghostbtn" id="btn-cards" style="margin-top:0">📜 典故圖鑑 <b id="cards-count"></b></button>
+        <button class="ghostbtn" id="btn-dojo" style="margin-top:0">⚔️ 錯題道場 <b id="dojo-count"></b></button>
+      </div>
+    </div>
+
+    <!-- 教師入口：刻意放在登入區之外，老師不必先用學生帳號登入也看得到。
+         真正的把關在後臺頁面本身（需輸入教師密碼）。 -->
+    <button class="ghostbtn teacherbtn" id="btn-teacher">🔐 教師分析後臺</button>
+
+    <div class="lesson-box lessons">
+      <h3><span>選擇課次</span><span id="lesson-hint"></span></h3>
+      <div id="lesson-grid" class="lesson-grid"></div>
+      <div id="lesson-info" class="lesson-info"></div>
+      <div id="lesson-list"></div>
+    </div>
+
+
+    <div class="lesson-box raid" id="raid-box" hidden>
+      <h3><span>全班討伐</span><span id="raid-cls"></span></h3>
+      <div class="raid-body">
+        <div class="raid-port"><img id="raid-img" alt="" referrerpolicy="no-referrer"></div>
+        <div class="raid-main">
+          <b class="raid-name" id="raid-name"></b>
+          <div class="raid-bar"><i id="raid-fill"></i><span id="raid-hp"></span></div>
+          <p class="raid-info" id="raid-info"></p>
+          <div class="raid-top" id="raid-top"></div>
+        </div>
+      </div>
+      <p class="raid-reward" id="raid-reward"></p>
+    </div>
+
+    <div class="lesson-box games">
+      <h3><span>遊戲設定</span></h3>
+      <p class="opt-label">難度</p>
+      <div class="opt-row" id="diff-row">
+        <button class="optbtn on" data-diff="easy">
+          <b>普通　一對一</b><span>單挑一名對手，適合第一次遊玩</span>
+        </button>
+        <button class="optbtn" data-diff="hard">
+          <b>困難　一對三</b><span>三名對手圍攻，可自選攻擊目標，分數 ×1.3</span>
+        </button>
+      </div>
+      <p class="opt-label">節奏</p>
+      <div class="opt-row" id="speed-row">
+        <button class="optbtn on" data-speed="1">
+          <b>一般</b><span>完整的攻防演出</span>
+        </button>
+        <button class="optbtn" data-speed="0.45">
+          <b>快速</b><span>演出加速、略過全畫面特寫，適合課堂</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="copyright">
+      本作品由<b>新北市私立南山高級中學　闕宏宇老師</b>設計製作，供校內國語文教學使用。<br>
+      遊戲角色取材自神話、傳說、歷史人物與古典小說，經重新設計為本作品的原創角色；
+      角色設定、立繪、動畫與程式皆為本作品自行製作。<br>
+      題目改寫自各出版社教材，原文著作權仍屬原權利人所有。<br>
+      未經作者同意，<b>請勿</b>將本作品或其內容用於商業用途、對外散布、重新發行或收費服務。
+      如對內容有任何疑慮，請來信告知，將儘速處理。
+    </p>
+
+    <div class="home-actions">
+      <button class="cta" id="btn-goto-select">選擇角色，開始挑戰</button>
+      <button class="ghostbtn" id="btn-home-rules" style="margin-top:0">📖 遊戲規則</button>
+      <button class="ghostbtn" id="btn-home-codex" style="margin-top:0">📋 角色清冊</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 1. 選角 ══════════ -->
+<div class="screen" id="scr-select">
+  <div class="topbar-mini">
+    <button class="backbtn" id="btn-back-home">← 返回首頁</button>
+    <h2>選擇出戰角色</h2>
+    <span class="lesson-tag" id="lesson-tag"></span>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+  <nav class="tabs" id="role-tabs"></nav>
+  <div class="select-body">
+    <aside class="showcase" id="showcase">
+      <div class="sc-art" id="sc-art">
+        <img id="sc-img" alt="" referrerpolicy="no-referrer">
+        <span class="sc-role" id="sc-role"></span>
+        <span class="sc-evo" id="sc-evo" hidden></span>
+        <div class="sc-power" id="sc-power" hidden><i>總戰力</i><b id="sc-power-n">—</b></div>
+      </div>
+      <h2 id="sc-name">尚未選擇角色</h2>
+      <p id="sc-sub"></p>
+      <div class="sc-quote" id="sc-quote" hidden></div>
+      <div class="sc-moves" id="sc-moves"></div>
+    </aside>
+    <div class="roster" id="roster"></div>
+  </div>
+
+  <div class="dock">
+    <div class="dock-in">
+      <img id="dk-img" alt="" referrerpolicy="no-referrer" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
+      <div class="dock-meta">
+        <b id="dk-name">尚未選擇角色</b>
+        <span id="dk-info">從上方陣容中挑一位出戰</span>
+      </div>
+      <div class="stats" id="dk-stats"></div>
+      <div class="dock-moves" id="dk-moves"></div>
+      <button class="cta" id="btn-start" disabled>出戰！</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 2. 戰鬥 ══════════ -->
+<div class="screen" id="scr-battle">
+  <!-- 戰場插畫：固定鋪滿整個畫面，內容在上面捲動 -->
+  <div class="stage-bg" id="stage-bg" aria-hidden="true"></div>
+
+  <div class="topbar">
+    <button class="rules-btn" id="btn-rules" aria-label="遊戲規則">📖</button>
+    <div class="tb"><b id="r-round">R1</b><small>回合</small></div>
+    <div class="tb"><b id="r-now">1</b><small id="r-max">/ 10</small></div>
+    <div class="tb score"><b id="r-score">0</b><small>分數</small></div>
+    <div class="tb combo" id="combo-box"><b id="r-combo">×1</b><small>連擊</small></div>
+    <button class="mutebtn" id="btn-mute" aria-label="音效開關">🔊</button>
+  </div>
+
+  <div class="cond-card" id="rv-box" hidden>
+    <p class="cond-lab">戰鬥不能</p>
+    <h3>你倒下了</h3>
+    <b style="color:var(--ember)">目前分數 <span id="rv-score">0</span>　選一個方式繼續</b>
+    <div class="rv-list" id="rv-list"></div>
+  </div>
+
+  <div class="cond-card" id="qs-box" hidden>
+    <p class="cond-lab">臨時存檔</p>
+    <h3>先存起來，下次接著打</h3>
+    <div class="cond-list" id="qs-info"></div>
+    <p class="qs-note" id="qs-note"></p>
+    <p class="pw-msg" id="qs-msg"></p>
+    <div class="qs-btns">
+      <button class="cta" id="qs-leave">存檔並回首頁</button>
+      <button class="ghostbtn" id="qs-stay">存檔後繼續</button>
+      <button class="backbtn" id="qs-cancel">取消</button>
+    </div>
+  </div>
+
+  <div class="cond-card" id="cond-box" hidden>
+    <div class="cond-grid">
+      <div class="cond-main">
+        <p class="cond-lab">今日狀態</p>
+        <div class="cond-port"><img id="cond-img" alt=""></div>
+        <h3 id="cond-name"></h3>
+        <b id="cond-head"></b>
+        <div class="cond-list" id="cond-list"></div>
+      </div>
+      <div class="cond-lore" id="cond-lore" hidden>
+        <p class="cond-lab">角色小傳</p>
+        <div class="lore-text" id="lore-bio"></div>
+        <div class="lore-moves" id="lore-moves"></div>
+      </div>
+    </div>
+    <button class="cta" id="cond-go">開始戰鬥</button>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 左：玩家 -->
+    <aside class="side side-p">
+      <span class="side-tag">我方</span>
+      <div class="fighter f-left" id="f-p"><div class="assist" id="p-assist"></div><div class="portrait" id="p-port"><img id="p-img" alt="" referrerpolicy="no-referrer"></div></div>
+      <div class="fname" id="p-name"></div>
+      <div class="hp" id="p-bar">
+        <div class="hp-ghost" id="p-ghost"></div>
+        <div class="hp-fill" id="p-fill"></div>
+        <div class="hp-num" id="p-hp"></div>
+      </div>
+      <div class="chips" id="p-chips"></div>
+      <div class="ammo" id="p-ammo"></div>
+    </aside>
+
+    <!-- 中：戰鬥履歷、題目、戰術 -->
+    <main class="center">
+      <div class="ticker" id="ticker"></div>
+
+      <section class="card q-card" id="q-card">
+        <h3><span>題目</span><span><b class="q-cat" id="q-cat" hidden></b>　<b class="q-type" id="q-type"></b>　<span id="q-idx"></span></span></h3>
+        <p class="qtext" id="q-text">題目載入中…</p>
+        <div class="opts" id="q-opts"></div>
+        <div class="exp" id="q-exp" hidden></div>
+      </section>
+
+      <section class="card t-card">
+        <h3><span>行動</span><span id="t-note"></span></h3>
+
+        <div class="charge" id="charge" hidden>
+          <div class="charge-top"><span>發動權</span><b id="chg-pct">0%</b></div>
+          <div class="segs" id="chg-segs"></div>
+        </div>
+
+        <p class="evo-hint" id="t-evo" hidden></p>
+
+        <div class="sp-box">
+          <p class="sub">精神指令　<b id="sp-now">0</b> SP　<i>（答對取得，每回合各指令可用一次）</i></p>
+          <div class="sp-list" id="sp-list"></div>
+        </div>
+
+        <div id="t-forms" hidden>
+          <p class="sub">合體形態（隨時可換，體力比例保留）</p>
+          <div class="forms" id="forms-grid"></div>
+        </div>
+
+        <div class="hint" id="t-hint">先作答，答對比例決定招式威力。<br>全對＝100% 全力一擊，還能疊連擊加成。</div>
+
+        <div id="t-body" hidden>
+          <p class="zero-hint" id="t-zero-hint" hidden>這題沒有取得發動權，招式無法發動。你仍然可以使用下方的<b>精神指令</b>，或直接進入下一題。</p>
+          <p class="sub">選擇本回合行動：攻擊、防禦或特技</p>
+          <div class="moves" id="t-moves"></div>
+        </div>
+        <button class="ability" id="t-ability" hidden></button>
+        <button class="ability cat-solve" id="cat-solve" hidden></button>
+      </section>
+    </main>
+
+    <!-- 右：對手 -->
+    <aside class="side side-e">
+      <span class="side-tag">對手</span>
+      <div class="fighter f-right" id="f-e"><div class="assist" id="e-assist"></div><div class="portrait" id="e-port"><img id="e-img" alt="" referrerpolicy="no-referrer"></div></div>
+      <div class="fname" id="e-name"></div>
+      <div class="hp" id="e-bar">
+        <div class="hp-ghost" id="e-ghost"></div>
+        <div class="hp-fill" id="e-fill"></div>
+        <div class="hp-num" id="e-hp"></div>
+      </div>
+      <div class="chips" id="e-chips"></div>
+      <div class="ammo" id="e-ammo"></div>
+      <div class="foe-list" id="foe-list" hidden></div>
+    </aside>
+
+  </div>
+
+  <div class="actionbar">
+    <div class="actionrow">
+      <button class="qsavebtn" id="btn-qsave" aria-label="臨時存檔">💾<span>暫存</span></button>
+      <button class="cta" id="main-btn">送出答案</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 角色清冊 ══════════ -->
+<div class="screen" id="scr-codex">
+  <div class="topbar-mini">
+    <button class="backbtn" id="btn-codex-back">← 返回</button>
+    <h2>角色清冊</h2>
+  </div>
+  <nav class="tabs" id="codex-tabs"></nav>
+  <div class="codex">
+    <p class="codex-note">同一類型的角色，強弱長相很像但細節不同：看長條就知道誰血厚、誰打得痛、誰擋得住。點「選這位」可以直接帶去選角畫面。</p>
+    <div id="codex-role"></div>
+    <div class="codex-sort" id="codex-sort"></div>
+    <div class="codex-list" id="codex-list"></div>
+  </div>
+</div>
+
+<!-- ══════════ 解析 ══════════ -->
+<div class="screen" id="scr-explain">
+  <div class="explain">
+    <div class="ex-head">
+      <span class="ex-idx" id="ex-idx"></span>
+      <span class="ex-badge" id="ex-badge"></span>
+    </div>
+    <p class="ex-q" id="ex-q"></p>
+    <div class="ex-ans" id="ex-ans"></div>
+    <div class="ex-body">
+      <h4>解析</h4>
+      <p id="ex-text"></p>
+    </div>
+    <button class="cta" id="ex-next">確認解析，進入下一題</button>
+  </div>
+</div>
+
+<!-- ══════════ 稱號風格 ══════════ -->
+<div class="screen" id="scr-styles">
+  <div class="topbar-mini">
+    <button class="backbtn" id="btn-styles-back">← 返回</button>
+    <h2>稱號風格</h2>
+    <span class="lesson-tag" id="style-quota"></span>
+  </div>
+  <div class="codex">
+    <p class="codex-note">同樣的積分門檻，換個風格就換一套稱號。<b>每個月 1 號與 15 號各開放更換一次</b>（一個月最多兩次），選定後所有畫面都會用這套稱號顯示。</p>
+    <div class="style-grid" id="style-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════ 回合結算 ══════════ -->
+<div class="screen" id="scr-round">
+  <div class="sheet">
+    <h2 id="rd-title">回合結束</h2>
+    <div class="breakdown" id="rd-body"></div>
+    <p id="rd-msg"></p>
+    <button class="cta" id="rd-save" style="width:100%;margin-top:14px">💾 存檔</button>
+    <div class="rowbtn">
+      <button class="cta" id="rd-next">下一回合</button>
+      <button class="ghostbtn" id="rd-quit" style="margin-top:0">結束並結算</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 規則書 ══════════ -->
+<div class="screen" id="scr-rules">
+  <div class="sheet">
+    <h2>關於答對率等於攻擊力這件事　規則書</h2>
+    <p class="muted">答對率就是你的攻擊力。這不是打字快就能贏的遊戲，讀懂題目才是。</p>
+
+    <h3>一、基本流程</h3>
+    <ul>
+      <li>全場分為 <b>3 個回合</b>，每回合題數＝題庫總題數 ÷ 3。</li>
+      <li>每題流程：作答 → 取得發動權 → 選擇行動 → 觀看攻防 → 確認解析 → 下一題。</li>
+      <li>作答過的題目不會再出現；答錯的題目會在下一回合再出一次（每題最多重來一次）。</li>
+      <li>每回合結束可存檔。回合進行到一半也能按左下角的 <b>💾 暫存</b>，下次登入從同一題接續；
+          每一題開始時，這台裝置也會自動備份一次。</li>
+      <li>送出答案前會再確認一次，避免手機誤觸。</li>
+    </ul>
+
+    <h3>二、發動權</h3>
+    <ul>
+      <li>發動權＝（答對選項數 − 誤選數）÷ 正解數，未作答為 0。</li>
+      <li>攻擊傷害直接乘上發動權；<b>特技需要 50% 以上</b>才發動得起來。</li>
+      <li>防禦的減傷幅度也隨發動權遞增，全對才有完整效果。</li>
+      <li><b>發動權 0％ 時所有招式都會鎖住</b>──這一題你只能使用精神指令，或直接進入下一題。</li>
+      <li>連續全對可累積 <b>連擊</b>，每層 +8% 傷害，最多 5 層，答錯即歸零。</li>
+    </ul>
+
+    <h3>三、三招各司其職</h3>
+    <ul>
+      <li><b>攻擊</b>：造成傷害，受屬性相剋、命中率與會心影響。威力越高命中率越低，但<b>期望傷害仍隨威力遞增</b>——高威力永遠是划算的，只是比較不穩。</li>
+      <li><b>群體攻擊</b>：一次打到所有敵人，但對每個目標只有 <b>72%</b> 傷害，命中率再 −18%，而且打不出會心。</li>
+      <li><b>防禦</b>：大幅減傷，並有機會反擊；防禦型角色反擊率再 +20%。</li>
+      <li><b>特技</b>：提升攻防、蓄力、回復，或讓對手中毒、失準、弱化。</li>
+    </ul>
+
+    <h3>四、八屬性相剋</h3>
+    <p>剋制時傷害 <b>×1.5</b>，被剋時 <b>×0.5</b>。選角前先看看對手的屬性。</p>
+    <ul>
+      <li><b>五環相剋</b>：火 → 風 → 土 → 雷 → 水 → 火（箭頭方向為「剋」）。</li>
+      <li><b>光 ⇄ 冥</b>：兩者互剋，彼此傷害都加成。</li>
+      <li><b>無</b>：不剋任何屬性，也不被任何屬性剋，數值換取穩定。</li>
+    </ul>
+
+    <h3>五、陣營共通被動</h3>
+    <p>選了哪個陣營，整場都會帶著這個效果，不需要發動。</p>
+    <ul>
+      <li>⚡ <b>神域</b>　神威：開場 SP +4</li>
+      <li>🛡️ <b>誓約</b>　誓約之盾：防禦招的減傷效果再 ×0.5</li>
+      <li>🏯 <b>亂世</b>　下剋上：攻擊 ×1.2、命中 +10</li>
+      <li>🐉 <b>逐鹿</b>　兵法：先攻判定 +8、閃避 +5%、會心 +8%</li>
+      <li>🍶 <b>梁山</b>　義氣：受擊時反彈 15% 傷害</li>
+      <li>🎓 <b>學府</b>　預修學分：每一題 SP +2</li>
+      <li>🌿 <b>淺山</b>　野性自癒：每回合回復 5% 體力</li>
+    </ul>
+
+    <h3>五之二、解鎖貓與收集獎勵</h3>
+    <ul>
+      <li>每個陣營都藏著一隻貓，未解鎖時在該陣營分頁顯示成 <b>？？？</b> 卡片。</li>
+      <li>解鎖條件：用該陣營的角色<b>完整打完三個回合</b>，累積到該陣營可選角色的<b>半數</b>。
+          中途被擊倒或提早結束都不算。點那張 ??? 卡片可以看目前進度。</li>
+      <li>貓的整體強度約為一般角色的 <b>112%</b>，代價是<b>不能進化，也不會有夥伴來合體</b>。</li>
+      <li><b>七隻全部解鎖之後</b>，往後不論使用哪一位角色，每場都可以額外使用一次
+          <b>🐾 直接解題</b>：牠們會替你把正解圈出來。</li>
+    </ul>
+
+    <h3>六、特色能力</h3>
+    <p>每位角色都有一個 <b>一場一次</b> 的特色能力。<b>換乘或變形後可以再使用一次</b>，所以三階角色一場最多能發動三次。</p>
+    <p class="muted" style="margin-top:6px">其中兩個特別吃屬性與陣營：<b>天敵直覺</b>在你的攻擊屬性剋制對手時再 ×1.4、對手屬性被你剋制時受創 ×0.75；<b>宿敵</b>對上特定陣營時傷害 ×1.5、受創 ×0.7。</p>
+
+    <h3>七、精神指令</h3>
+    <ul>
+      <li>答題累積 <b>SP</b>：全對 +3、部分答對 +1。每個定位可用的指令不同。</li>
+      <li><b>熱血</b>（×2.0）與<b>魂</b>（×2.5，必會心）<b>可以疊加</b>，兩個都用是 ×3.5，代價是 13 SP。</li>
+      <li>發動權 0 的那一題，精神指令仍然可以正常使用。</li>
+    </ul>
+
+    <h3>八、合體支援</h3>
+    <p>攻擊或防禦時有 <b>14% 機率</b> 由同一小隊的夥伴登場：合體攻擊傷害 ×1.65；合體防禦再減半傷害，且反擊率大幅提高。</p>
+    <p class="muted" style="margin-top:6px">夥伴只會從同一個小隊裡找，例如三國的角色只會和三國的角色合體。</p>
+
+    <h3>九、角色定位</h3>
+    <ul>
+      <li>攻擊型：傷害最高，血量偏薄。</li>
+      <li>防禦型：減傷與反擊最強。</li>
+      <li>耐久型：血量最厚，適合久戰。</li>
+      <li>幸運型：高會心、高閃避。</li>
+      <li>速攻型：命中穩定、偶爾閃避。</li>
+      <li>均衡型：各項平均，最好上手。</li>
+    </ul>
+
+    <h3>十、換乘與變形</h3>
+    <ul>
+      <li>換乘條件<b>大多是正向的</b>：連續答對幾題、撐過幾題、體力保持在高檔。只有少數角色是體力低落或累積受創才爆發。</li>
+      <li>換乘會回復體力並更換全部招式，有些角色連定位都會變（例如林沖從防禦型變成攻擊型）。</li>
+      <li>部分角色是<b>三階</b>成長，例如宋江：鄆城押司 → 及時雨 → 梁山之主。</li>
+      <li>部分角色覺醒後可<b>自由切換形態</b>，例如呂布的方天畫戟／赤兔／強弓。切換不消耗回合，體力比例保留，隨時可以換回來。</li>
+      <li>選角畫面會標出每位角色的換乘條件，戰鬥中也會顯示在戰術面板上方。</li>
+    </ul>
+
+    <h3>十一、計分</h3>
+    <ul>
+      <li>答題得分：每題最高 100 分（依發動權比例）。</li>
+      <li>擊倒對手 +200，最高連擊每層 +60，每完成一回合 +150。</li>
+      <li>最終再加：殘存體力 ×3、獲勝 +500。</li>
+    </ul>
+
+    <h3>十二、成長系統</h3>
+    <ul>
+      <li><b>題型熟練度</b>：八大題型各自累計全對題數，滿 5／15／30／50／80 題升到 Lv1～Lv5。
+          出到這類題目時，每一級出招傷害 +3%（Lv5 為 +15%）。</li>
+      <li><b>典故卡</b>：用一位角色完整打完三回合，就解鎖他的典故卡與招式典故；同一位角色通關 3 次升銀框、5 次升金框。</li>
+      <li><b>成就徽章</b>：共 18 個，例如十連全對、完美回合、以一敵三、群英薈萃，在首頁「我的成長」點徽章就能看條件。</li>
+      <li><b>全班討伐</b>：每一課、每一班各有一隻討伐目標。全班的作答會累計成傷害（全對一題 10 點），
+          打倒之後，全班在這一課開場 SP +5。</li>
+      <li><b>錯題道場</b>：錯題本裡的題目會化身菁英怪，一次最多 20 題。全對就訂正成功，題目從錯題本移除。道場不計學期積分。</li>
+      <li><b>每週活動</b>：老師開放的限時活動會顯示在首頁最上方，例如指定屬性傷害加成、開場 SP 增加、指定課次分數加乘。</li>
+    </ul>
+
+    <button class="cta" id="rules-close" style="width:100%;margin-top:20px">關閉</button>
+  </div>
+</div>
+
+<!-- ══════════ 典故圖鑑 ══════════ -->
+<div class="screen" id="scr-cards">
+  <div class="topbar-mini">
+    <button class="backbtn" id="btn-cards-back">← 返回</button>
+    <h2>典故圖鑑</h2>
+    <span class="lesson-tag" id="cards-tag"></span>
+  </div>
+  <nav class="tabs" id="cards-tabs"></nav>
+  <div class="codex">
+    <p class="codex-note">用一位角色<b>完整打完三回合</b>，就能解鎖他的典故卡，讀到每一招背後的故事。同一位角色通關 3 次升銀框、5 次升金框。</p>
+    <div class="card-grid" id="card-grid"></div>
+  </div>
+</div>
+<div class="cond-card card-detail" id="card-detail" hidden>
+  <div class="cd-sheet">
+    <div class="cd-port"><img id="cd-img" alt="" referrerpolicy="no-referrer"></div>
+    <div class="cd-text">
+      <h3 id="cd-name"></h3>
+      <p class="cd-sub" id="cd-sub"></p>
+      <div class="sc-quote" id="cd-quote" hidden></div>
+      <div class="lore-text" id="cd-bio"></div>
+      <div class="lore-moves" id="cd-moves"></div>
+      <p class="cd-next" id="cd-next"></p>
+    </div>
+  </div>
+  <button class="cta" id="cd-close">關閉</button>
+</div>
+
+<!-- ══════════ 3. 結算 ══════════ -->
+<div class="screen" id="scr-result">
+  <div class="result">
+    <h2 class="verdict" id="verdict">戰鬥結束</h2>
+    <div class="total"><span id="total-score">0</span><small>分</small></div>
+
+    <div class="unlock-note" id="unlock-note" hidden></div>
+    <div class="growth-note" id="growth-note" hidden></div>
+    <div class="breakdown" id="breakdown"></div>
+
+    <div class="sem-result" id="sem-result" hidden>
+      <h4>學期積分</h4>
+      <p id="sem-result-text"></p>
+    </div>
+
+    <div id="save-box">
+      <p class="save-who" id="save-who"></p>
+      <button class="cta" id="btn-save" style="width:100%">送出成績</button>
+    </div>
+
+    <div class="rank-box" id="rank-box" hidden></div>
+
+    <div class="board" id="board" hidden>
+      <table>
+        <thead><tr><th>名次</th><th>玩家</th><th>角色</th><th>分數</th></tr></thead>
+        <tbody id="board-body"></tbody>
+      </table>
+    </div>
+
+    <button class="ghostbtn" id="btn-again">再次挑戰</button>
+  </div>
+</div>
+
+<!--@SCRIPTS-->
+</body>
+</html>

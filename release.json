@@ -1,21 +1,27 @@
 {
- "release": "r20261028-689e7fb0",
+ "release": "r20261028-becc23a3",
  "site": "https://s90194yeu-collab.github.io/atkqa-game/",
  "pages": {
   "game": {
    "file": "pages/game.html",
-   "sha256": "f489bae420f0e97262f48186f1647b743ebd65a25dea7a1708477202f9d163fa",
-   "bytes": 28041
+   "sha256": "6529a0e66919b24746cd71686eef92a0d71ae6b84a59a5f3d66115f0de33e193",
+   "bytes": 31642,
+   "css": 10,
+   "js": 26
   },
   "stats": {
    "file": "pages/stats.html",
-   "sha256": "cc7a704a01b62758fa87f41a562427c6c98d2a722bdf7c3fb5bfa2cfbdd744a3",
-   "bytes": 4628
+   "sha256": "30cfd26887efedd42b2c09b6d28e82d9356dd72fa2bb0a3a51f1d6c8f77faf4d",
+   "bytes": 4573,
+   "css": 1,
+   "js": 1
   },
   "teacher": {
    "file": "pages/teacher.html",
-   "sha256": "387f61326056495a02a1253c08f4679e4c1ddd8934e1328a98dc3ef9fb3e34cc",
-   "bytes": 2548
+   "sha256": "c8b35f77b3db446e6ee90251beccf458fb44013c49b8ffa025cfa50295ce5925",
+   "bytes": 2495,
+   "css": 1,
+   "js": 1
   }
  },
  "images": 134,

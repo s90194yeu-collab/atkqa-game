@@ -1,0 +1,97 @@
+/* 【01-base.css】設計代幣、全域樣式、畫面切換　（依檔名編號順序載入） */
+
+/* ============================================================
+   設計代幣 — 明亮日系手遊風
+   ink 是所有文字與描邊的底色；糖果色只拿來填色與點綴。
+   舊名稱（--ion、--gold…）保留，因為程式裡的戰鬥紀錄會直接引用。
+   ============================================================ */
+:root{
+  --ink:#3b3366;          /* 文字與描邊 */
+  --ink-2:#5c5590;
+  --dim:#7d78a3;          /* 次要文字 */
+  --paper:#ffffff;
+  --paper-2:#f7f5ff;      /* 面板內的淡底 */
+  --paper-3:#efeaff;
+  --line:#e6e0fb;         /* 面板外框 */
+  --line-2:#d5ccf6;       /* 按鈕外框與立體底邊 */
+  --sky-a:#d6efff;        /* 背景：天空 → 櫻花 */
+  --sky-b:#ffe4f0;
+
+  --ion:#1f8fe5;          /* 我方／資訊藍（文字可用） */
+  --ember:#ef4469;        /* 對手／答錯 */
+  --gold:#d48600;         /* 分數與強調（文字可用） */
+  --jade:#12a97c;         /* 答對 */
+  --grape:#8b68ee;        /* 群攻 */
+  --lemon:#ffd23f;        /* 純填色用的檸檬黃 */
+  --sakura:#ff6fa8;       /* 主按鈕 */
+  --sakura-d:#e04e8c;
+  --sakura-dd:#c23c77;
+
+  --u-myth:#f2ad00;
+  --u-oath:#4b7ff0;
+  --u-sengoku:#ff7a3a;
+  --u-zhulu:#e8465b;
+  --u-shuihu:#3fae62;
+  --u-major:#14b5a6;
+  --u-wild:#b0773f;
+  --u-special:#9c64f0;
+
+  /* 舊名稱沿用，讓程式產生的元素也換上新配色 */
+  --void:var(--sky-a);
+  --steel:#ffffff;
+  --steel-2:#ffffff;
+  --txt:var(--ink);
+
+  --r:18px;
+  --lift:0 5px 0 var(--line-2);                         /* 卡片的立體底邊 */
+  --float:0 18px 34px -22px rgba(76,58,160,.45);        /* 卡片的柔和投影 */
+  --display:'Huninn','Fredoka','Noto Sans TC',sans-serif;
+  --hud:'Fredoka','Huninn','Noto Sans TC',sans-serif;
+  --body:'Noto Sans TC','PingFang TC','Microsoft JhengHei',system-ui,sans-serif;
+  --serif:'LXGW WenKai TC','Noto Serif TC','PMingLiU',serif;
+  --pad:clamp(12px,2.6vw,22px);
+  /* 白字描邊：日系遊戲的招牌字效，任何底色上都讀得到 */
+  --stroke:0 2px 0 var(--ink),2px 0 0 var(--ink),-2px 0 0 var(--ink),0 -2px 0 var(--ink),
+           1.5px 1.5px 0 var(--ink),-1.5px 1.5px 0 var(--ink),1.5px -1.5px 0 var(--ink),-1.5px -1.5px 0 var(--ink);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* hidden 屬性必須蓋過元素自身的 display 設定，否則 .hidden=true 會失效 */
+[hidden]{display:none !important}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--body);
+  color:var(--ink);
+  background-color:var(--sky-a);
+  background-image:
+    radial-gradient(rgba(255,255,255,.75) 1.6px,transparent 1.8px),
+    radial-gradient(120% 70% at 0% 0%,#c9ebff 0%,transparent 60%),
+    radial-gradient(90% 70% at 100% 100%,#ffd6e8 0%,transparent 62%),
+    linear-gradient(165deg,var(--sky-a),#eef0ff 48%,var(--sky-b));
+  background-size:26px 26px,auto,auto,auto;
+  background-attachment:fixed;
+  min-height:100dvh;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:focus-visible{outline:3px solid var(--ion);outline-offset:2px;border-radius:10px}
+
+/* 橫式優先：手機／平板直向時提示轉向 */
+.rotate-hint{
+  display:none;position:fixed;inset:0;z-index:90;
+  flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  padding:32px 28px;text-align:center;
+  background:linear-gradient(170deg,var(--sky-a),var(--sky-b));
+}
+.rotate-hint b{font-family:var(--display);font-weight:400;font-size:clamp(22px,6vw,28px);color:#fff;text-shadow:var(--stroke)}
+.rotate-hint span{font-size:14px;color:var(--ink-2);line-height:1.8;max-width:340px}
+.rot-icon{font-size:56px;animation:rotSpin 2.4s ease-in-out infinite;margin-bottom:6px}
+@keyframes rotSpin{0%,45%{transform:rotate(0)}60%,90%{transform:rotate(90deg)}100%{transform:rotate(90deg)}}
+@media (max-width:1024px) and (orientation:portrait){
+  body.force-landscape .rotate-hint{display:flex}
+  body.force-landscape .screen{display:none !important}
+}
+
+/* 畫面切換 */
+.screen{display:none;min-height:100dvh;flex-direction:column}
+.screen.on{display:flex}

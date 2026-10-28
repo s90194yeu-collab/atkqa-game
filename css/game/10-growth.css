@@ -1,0 +1,134 @@
+/* 【10-growth.css】成長系統、背景音樂鈕　（依檔名編號順序載入） */
+/* ============================================================
+   成長系統：活動橫幅、熟練度、成就、全班討伐、典故圖鑑
+   ============================================================ */
+.event-strip{width:100%;display:grid;gap:8px}
+.ev{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:10px 16px;border-radius:18px;
+  background:linear-gradient(100deg,#f3eeff,#ffeef6);border:2.5px solid #d9ccff;box-shadow:0 4px 0 #d9ccff;
+}
+.ev b{font-family:var(--display);font-weight:400;font-size:16px;color:var(--grape)}
+.ev span{font-size:13px;font-weight:700;color:var(--ink-2)}
+
+.lesson-box.growth{--tagc:var(--jade)}
+.ms-hint{font-style:normal;font-weight:400;color:var(--dim);font-size:11.5px}
+.mastery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.ms{--lc:#b9b4d4;padding:8px 11px;border-radius:14px;background:var(--paper-2)}
+.ms.lv1{--lc:#34d399}.ms.lv2{--lc:#45b4ff}.ms.lv3{--lc:#8b68ee}.ms.lv4{--lc:#ff6fa8}.ms.lv5{--lc:#f5ab00}
+.ms-top{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.ms-top b{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-top em{flex:0 0 auto;font-style:normal;font-family:var(--hud);font-weight:700;font-size:12px;color:#fff;
+  padding:0 8px;border-radius:999px;background:var(--lc)}
+.ms u{display:block;height:7px;margin:6px 0 3px;border-radius:999px;background:#fff;overflow:hidden;text-decoration:none}
+.ms u i{display:block;height:100%;border-radius:999px;background:var(--lc)}
+.ms small{font-size:11px;color:var(--dim)}
+
+.ach-shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:7px}
+.ach{
+  aspect-ratio:1;border-radius:50%;font-size:21px;display:grid;place-items:center;
+  background:var(--paper-3);border:2.5px dashed var(--line-2);filter:grayscale(1);opacity:.45;
+  transition:transform .12s;
+}
+.ach.got{filter:none;opacity:1;border:2.5px solid #ffd77a;background:radial-gradient(circle at 35% 30%,#fff,#fff3c4 70%);
+  box-shadow:0 3px 0 #f0b400}
+.ach.on{transform:scale(1.12);outline:3px solid var(--sakura);outline-offset:2px}
+.ach-detail{margin:9px 0 12px;padding:8px 12px;border-radius:12px;background:var(--paper-2);font-size:12.5px;color:var(--dim);min-height:38px}
+.ach-detail b{color:var(--ink);margin-right:8px}
+.lesson-box.growth .rowbtn b{font-family:var(--hud);font-weight:600;color:var(--gold);margin-left:4px}
+
+/* 全班討伐 */
+.lesson-box.raid{--tagc:var(--ember);border-color:#ffd0da;box-shadow:0 5px 0 #ffc2cf,var(--float)}
+.raid-body{display:flex;gap:14px;align-items:center}
+.raid-port{flex:0 0 auto;width:86px;aspect-ratio:4/5;border-radius:16px;overflow:hidden;
+  background:radial-gradient(circle at 50% 36%,#fff 0 20%,transparent 62%),linear-gradient(180deg,#ffe3ea,#ffc7d4);
+  border:3px solid #fff;box-shadow:0 0 0 2.5px #ffc2cf}
+.raid-port img{width:100%;height:100%;object-fit:contain;padding:4px}
+.raid-main{flex:1;min-width:0}
+.raid-name{display:block;font-family:var(--display);font-weight:400;font-size:19px;margin-bottom:6px}
+.raid-bar{position:relative;height:24px;border-radius:999px;border:3px solid var(--ink);background:#fff;overflow:hidden;box-shadow:0 3px 0 var(--ink)}
+.raid-bar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(180deg,#ffa4b6,#ff5d7d 55%,#ef4469);transition:width .6s}
+.raid-bar span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--hud);font-weight:700;font-size:13px;color:#fff;text-shadow:var(--stroke)}
+.raid-info{margin:8px 0 4px;font-size:12.5px;color:var(--ink-2)}
+.raid-top{display:flex;flex-wrap:wrap;gap:6px}
+.raid-top span{font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--paper-2);color:var(--ink-2)}
+.raid-top span.me{background:#fff3c4;color:var(--ink)}
+.raid-reward{margin:10px 0 0;padding:8px 12px;border-radius:12px;background:#fff6f8;font-size:12.5px;font-weight:700;color:#a3264a}
+.lesson-box.raid.down .raid-port img{filter:grayscale(1) brightness(1.1);transform:rotate(-8deg)}
+.lesson-box.raid.down .raid-reward{background:#fff8e1;color:#9a6300}
+
+/* 結算畫面：這一場的收穫 */
+.growth-note{margin:16px auto 4px;max-width:480px;padding:12px 14px;border-radius:20px;text-align:left;
+  background:#f3fbf8;border:2.5px solid #a8e8cf;box-shadow:0 5px 0 #c6f0df}
+.growth-note h4{margin:0 0 8px;display:inline-block;padding:2px 12px;border-radius:999px;
+  font-family:var(--display);font-weight:400;font-size:14px;color:#fff;background:var(--jade)}
+.gn{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-top:2px dashed #d3f3e6}
+.gn:first-of-type{border-top:0}
+.gn i{font-style:normal;font-size:20px;line-height:1.3}
+.gn b{display:block;font-size:12px;color:var(--jade)}
+.gn span{font-size:13.5px;line-height:1.6;color:var(--ink)}
+
+/* 典故圖鑑：卡框依通關次數分銅、銀、金 */
+.card-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
+@media(min-width:640px){.card-grid{grid-template-columns:repeat(auto-fill,minmax(146px,1fr))}}
+.lcard{
+  --fc:#e7c39d;--fs:#c98a55;
+  position:relative;padding:7px 7px 10px;border-radius:18px;text-align:center;background:#fff;
+  border:3px solid var(--fc);box-shadow:0 4px 0 var(--fs);transition:transform .12s;
+}
+.lcard:hover{transform:translateY(-3px)}
+.lcard.silver{--fc:#c3cbdc;--fs:#98a3ba}
+.lcard.gold{
+  border-color:transparent;box-shadow:0 4px 0 #c98200,0 12px 24px -12px #f0a000;
+  background:linear-gradient(#fff,#fff) padding-box,
+             linear-gradient(135deg,#fff2b8,#f5ab00 30%,#fff7d6 50%,#e09200 75%,#ffe58a) border-box;
+}
+.lcard.locked{--fc:var(--line-2);--fs:var(--line);border-style:dashed;background:var(--paper-2)}
+.lcard-port{position:relative;aspect-ratio:4/5;border-radius:12px;overflow:hidden;margin-bottom:7px;
+  background:radial-gradient(circle at 50% 36%,#fff 0 20%,transparent 62%),
+             linear-gradient(180deg,color-mix(in srgb,var(--uc) 14%,#fff),color-mix(in srgb,var(--uc) 32%,#fff))}
+.lcard-port img{width:100%;height:100%;object-fit:contain;padding:5px}
+.lcard.locked .lcard-port img{filter:grayscale(1) brightness(1.15) opacity(.55)}
+.lcard.gold .lcard-port::after{ /* 金框卡的光澤掃過 */
+  content:"";position:absolute;inset:-40%;pointer-events:none;
+  background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.75) 50%,transparent 60%);
+  animation:cardShine 3.2s ease-in-out infinite;
+}
+@keyframes cardShine{0%,60%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+.lcard-port em{position:absolute;left:6px;top:6px;font-style:normal;font-size:10.5px;font-weight:700;
+  padding:1px 8px;border-radius:999px;color:#fff;background:var(--fs)}
+.lcard.gold .lcard-port em{background:#e09200}
+.lcard b{display:block;font-size:13px;line-height:1.3}
+.lcard small{display:block;margin-top:3px;font-size:11px;color:var(--dim)}
+
+.card-detail{justify-content:center}
+.cd-sheet{
+  display:grid;gap:18px;width:min(900px,100%);padding:18px;border-radius:28px;background:#fff;
+  border:3px solid var(--line);box-shadow:var(--lift),var(--float);margin:auto 0;
+}
+.card-detail.bronze .cd-sheet{border-color:#e7c39d}
+.card-detail.silver .cd-sheet{border-color:#c3cbdc}
+.card-detail.gold .cd-sheet{border-color:#f5ab00;box-shadow:0 5px 0 #c98200,var(--float)}
+@media(min-width:760px){.cd-sheet{grid-template-columns:240px 1fr;align-items:start}}
+.cd-port{width:min(220px,56vw);margin:0 auto;aspect-ratio:4/5;border-radius:20px;overflow:hidden;
+  background:radial-gradient(circle at 50% 34%,#fff 0 20%,transparent 60%),linear-gradient(180deg,#e3f2ff,#f4e8ff);
+  border:3px solid #fff;box-shadow:0 0 0 2.5px var(--line)}
+.cd-port img{width:100%;height:100%;object-fit:contain;padding:6px}
+.cd-text{text-align:left}
+.cd-text h3{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(22px,5vw,28px)}
+.cd-sub{margin:4px 0 12px;font-size:13px;font-weight:700;color:var(--dim)}
+.cd-next{margin:12px 0 0;font-size:12.5px;font-weight:700;color:var(--gold)}
+.lore-lock{padding:10px 14px;border-radius:14px;background:var(--paper-2);border:2px dashed var(--line-2);
+  font-size:13.5px;font-weight:700;color:var(--ink-2);line-height:1.7}
+#cd-close{position:static;transform:none;width:min(360px,86vw);margin-top:6px}
+
+/* 開機錯誤面板（BOOT_DIAG 開啟時才會出現） */
+#boot-err{position:fixed;left:0;right:0;bottom:0;z-index:9999;max-height:46vh;overflow:auto;
+  padding:12px 16px;background:#fff0f3;border-top:3px solid var(--ember);
+  font-family:ui-monospace,monospace;font-size:.76rem;line-height:1.65;color:#7a1630}
+#boot-err b{color:var(--ember);display:block;margin-bottom:6px;font-size:.8rem}
+#boot-err code{display:block;white-space:pre-wrap;word-break:break-all;margin:4px 0}
+#boot-err button{float:right;padding:3px 10px;border-radius:8px;background:var(--ember);color:#fff;font-weight:800}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.05ms!important}
+}

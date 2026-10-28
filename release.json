@@ -1,10 +1,10 @@
 {
- "release": "r20261028-becc23a3",
+ "release": "r20261028-7ab3d453",
  "site": "https://s90194yeu-collab.github.io/atkqa-game/",
  "pages": {
   "game": {
    "file": "pages/game.html",
-   "sha256": "6529a0e66919b24746cd71686eef92a0d71ae6b84a59a5f3d66115f0de33e193",
+   "sha256": "ce4d6efaea25c803fabc2e134ddffbc427e7d23a20354cee1731d6f501eae6e1",
    "bytes": 31642,
    "css": 10,
    "js": 26

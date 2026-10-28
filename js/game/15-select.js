@@ -28,9 +28,10 @@ const UNIVERSE_FILTER = {};
 UNIVERSES.forEach(u=>{ UNIVERSE_FILTER[u.k] = u.keys; });
 let selected = null;
 
-/* 隱藏角色：輸入密碼才會出現在陣容中（僅本次開啟有效） */
-const SECRET_PW = { sp_quewue:'nsshchiue' };
+/* 隱藏角色：輸入密碼才會出現在陣容中（僅本次開啟有效）。
+   密碼存在 Apps Script（Code.gs 的 SECRET_PW），由伺服器核對；這份公開的程式裡不放密碼。 */
 const UNLOCKED  = {};
+let PW_BUSY = false;
 
 /* ── 解鎖貓：陣營 → 角色ID ──────────────────────────────
    用該陣營的角色打贏一場，就解鎖那一隻。進化過也算，
@@ -117,16 +118,27 @@ function closePw(){
 }
 function submitPw(){
   const v = ($('pw-input').value || '').trim();
-  if(!v) return;
-  let hit = null;
-  Object.keys(SECRET_PW).forEach(k=>{ if(SECRET_PW[k] === v) hit = k; });
-  if(!hit){
+  if(!v || PW_BUSY) return;
+  const fail = function(msg){
+    PW_BUSY = false;
     sfx('fail');
-    $('pw-msg').textContent = '密碼錯誤，請再試一次。';
+    $('pw-msg').textContent = msg;
     $('pw-input').value = '';
     $('pw-input').focus();
-    return;
-  }
+  };
+  if(!inGAS){ fail('隱藏角色要從學校的遊戲網址開啟才能解鎖。'); return; }
+  PW_BUSY = true;
+  $('pw-msg').textContent = '核對中⋯';
+  google.script.run
+    .withSuccessHandler(function(hit){
+      PW_BUSY = false;
+      if(!hit){ fail('密碼錯誤，請再試一次。'); return; }
+      finishUnlock(hit);
+    })
+    .withFailureHandler(function(){ fail('連線失敗，請稍後再試一次。'); })
+    .checkSecretPw(v);
+}
+function finishUnlock(hit){
   const ch = ALL_CHARACTERS.filter(c=>c.id===hit)[0];
   closePw();
   if(UNLOCKED[hit]){ alert('「' + (ch?ch.name:'') + '」已經解鎖了。'); return; }

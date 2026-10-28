@@ -10,7 +10,7 @@
 | 用途 | 網址 |
 |---|---|
 | 入口頁（GitHub） | https://s90194yeu-collab.github.io/atkqa-game/ |
-| 遊戲本體（Google） | 原本的 Apps Script 部署網址 |
+| 遊戲本體（Google） | https://script.google.com/macros/s/AKfycbyVajJNmGKJ9TFqao2yC9aF3XG9ag1cchbFRs3voOOz4XfS8LZ5RA-6QVAw9H3x4Avm/exec |
 | 學習分析 | Google 網址加上 `?page=stats` |
 | 教師後臺 | Google 網址加上 `?page=teacher` |
 

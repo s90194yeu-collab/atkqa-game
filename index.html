@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>關於答對率 等於攻擊力這件事</title>
+<meta name="description" content="南山高中國文科的答題戰鬥遊戲：答對率就是你的攻擊力。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<script>
+/* 入口頁：真正的遊戲在 Google 網址（學校帳號登入、紀錄存進試算表）
+   ↓↓↓ 原本的 Google 網址（Apps Script 部署網址，結尾是 /exec）貼在引號裡 ↓↓↓ */
+window.GAS_URL = '';
+</script>
+<style>
+:root{
+  --ink:#3b3366; --ink-2:#6b6491; --line:#e6e0fb;
+  --sakura:#ff6fa8; --sakura-d:#e04e8c; --sakura-dd:#c23c77;
+  --sky:#d8ecff; --cream:#fff8ef; --gold:#f2ad00;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  min-height:100dvh;color:var(--ink);font:16px/1.7 "Noto Sans TC",system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 1px 1px,rgba(255,255,255,.75) 1.4px,transparent 1.6px) 0 0/22px 22px,
+    linear-gradient(160deg,#d8ecff 0%,#efe6ff 46%,#ffe3ef 100%);
+  display:grid;place-items:center;padding:28px 16px calc(28px + env(safe-area-inset-bottom));
+}
+main{width:100%;max-width:880px;text-align:center}
+.eyebrow{
+  display:inline-block;font-weight:900;font-size:13px;letter-spacing:.12em;color:var(--ink-2);
+  background:#fff;border:2.5px solid var(--line);border-radius:999px;padding:4px 14px;box-shadow:0 3px 0 var(--line);
+}
+h1{margin:14px 0 6px;font-family:Huninn,"Noto Sans TC",sans-serif;font-weight:400;line-height:1.15;color:#fff;
+  -webkit-text-stroke:0;letter-spacing:.03em;
+  text-shadow:0 0 0 var(--ink),2px 2px 0 var(--ink),-2px 2px 0 var(--ink),2px -2px 0 var(--ink),-2px -2px 0 var(--ink),
+              0 3px 0 var(--ink),0 7px 0 var(--sakura-d)}
+h1 .l1{display:block;font-size:clamp(30px,6vw,52px)}
+h1 .l2{display:block;font-size:clamp(38px,8.4vw,74px)}
+.tag{display:inline-block;margin:6px 0 4px;background:#fff;border:2.5px solid var(--ink);border-radius:14px;
+  padding:6px 16px;font-weight:700;font-size:clamp(13px,2.6vw,16px);box-shadow:0 4px 0 var(--ink)}
+.cast{display:flex;justify-content:center;align-items:flex-end;gap:clamp(8px,2.4vw,22px);margin:26px auto 16px;height:clamp(170px,30vw,250px)}
+.cast img{height:100%;width:auto;aspect-ratio:3/4;object-fit:cover;border-radius:20px;border:4px solid #fff;
+  box-shadow:0 6px 0 var(--line),0 14px 26px rgba(59,51,102,.22);animation:bob 3.2s ease-in-out infinite}
+.cast img:nth-child(2){height:108%;animation-delay:-.8s;transform-origin:bottom}
+.cast img:nth-child(1){rotate:-4deg}.cast img:nth-child(3){rotate:4deg}
+.cast img:nth-child(3){animation-delay:-1.6s}
+@keyframes bob{50%{transform:translateY(-8px)}}
+@media (max-width:520px){.cast img:nth-child(1),.cast img:nth-child(3){display:none}}
+.card{background:#fff;border:2.5px solid var(--line);border-radius:22px;box-shadow:0 7px 0 var(--line);padding:20px 18px 18px;margin-top:6px}
+.go{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:min(340px,100%);
+  font:inherit;font-weight:900;font-size:clamp(18px,4vw,22px);color:#fff;text-decoration:none;letter-spacing:.06em;
+  background:linear-gradient(#ff8ab9,var(--sakura));border:2.5px solid var(--sakura-dd);border-radius:999px;
+  padding:14px 30px;box-shadow:0 6px 0 var(--sakura-dd);transition:transform .08s,box-shadow .08s;
+}
+.go:active{transform:translateY(4px);box-shadow:0 2px 0 var(--sakura-dd)}
+.go[aria-disabled="true"]{filter:grayscale(.7);opacity:.6;pointer-events:none}
+.sub{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}
+.sub a{color:var(--ink);text-decoration:none;font-weight:700;font-size:14.5px;background:#fff;border:2.5px solid var(--line);
+  border-radius:999px;padding:7px 16px;box-shadow:0 3px 0 var(--line)}
+.sub a:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.note{font-size:13.5px;color:var(--ink-2);margin:14px auto 0;max-width:600px}
+.warn{font-size:13.5px;color:#c23c77;font-weight:700;margin-top:10px}
+footer{margin-top:22px;font-size:12px;color:var(--ink-2);line-height:1.8}
+</style>
+</head>
+<body>
+<main>
+  <span class="eyebrow">南山高中國文科</span>
+  <h1><span class="l1">關於答對率</span><span class="l2">等於攻擊力這件事</span></h1>
+  <span class="tag">讀完課本的我，被英雄們搶著求出戰這件事</span>
+
+  <div class="cast" aria-hidden="true">
+    <img src="assets/img/my_athena.webp" alt="">
+    <img src="assets/img/my_zeus.webp" alt="">
+    <img src="assets/img/oa_arthur.webp" alt="">
+  </div>
+
+  <div class="card">
+    <a class="go" id="go" href="#">⚔️ 進入遊戲</a>
+    <div class="sub">
+      <a id="go-stats" href="#">📊 學習分析</a>
+      <a id="go-teacher" href="#">🧑‍🏫 教師後臺</a>
+    </div>
+    <p class="note">請用學校 Google 帳號（@stdmail.nssh.ntpc.edu.tw）登入，成績與學期積分才會被記錄。沒登入也可以遊玩，只是不留下紀錄。</p>
+    <p class="warn" id="warn" hidden>入口網址尚未設定：請在 index.html 開頭填入 Google 網址。</p>
+  </div>
+
+  <footer>
+    本作品由新北市私立南山高級中學　闕宏宇老師設計製作，僅供校內教學、非營利使用，請勿作商業用途。<br>
+    角色取材自神話、傳說、歷史人物與古典小說，經重新設計為本作品的原創角色。
+  </footer>
+</main>
+<script>
+(function(){
+  var raw = String(window.GAS_URL || '').trim();
+  var ok = /^https:\/\/script\.google\.com\/.+\/exec$/.test(raw);
+  var set = function(id, url){ var a = document.getElementById(id); a.href = ok ? url : '#'; if(!ok) a.setAttribute('aria-disabled', 'true'); };
+  set('go', raw);
+  set('go-stats', raw + '?page=stats');
+  set('go-teacher', raw + '?page=teacher');
+  document.getElementById('warn').hidden = ok;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<!-- 畫面空殼：由 Google Apps Script 讀取後提供給學生；程式與素材在 GitHub -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#d6efff">
+<title>學習分析　關於答對率 等於攻擊力這件事</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Fredoka:wght@500;600;700&family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/stats.css?v=281144f472">
+</head>
+<body>
+
+<header class="top">
+  <h1>學習分析</h1>
+  <a class="backlink" id="back" href="#">← 回到遊戲</a>
+  <div class="who"><b id="who-name">—</b><span id="who-sub"></span></div>
+</header>
+
+<nav class="tabs">
+  <button class="tab on" data-p="p-radar">📊 題型戰力</button>
+  <button class="tab" data-p="p-qs">🔍 逐題比較</button>
+  <button class="tab" data-p="p-wb">📕 錯題本</button>
+</nav>
+
+<div class="wrap">
+
+  <!-- ── 題型戰力 ── -->
+  <section class="page on" id="p-radar">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid2">
+      <div class="card">
+        <h3><span>八大題型戰力</span></h3>
+        <div id="radar"><div class="empty">讀取中⋯⋯</div></div>
+        <div class="legend">
+          <span class="me"><i></i>我的表現</span>
+          <span class="all"><i></i>全體平均</span>
+          <span class="avg"><i></i>我的平均</span>
+        </div>
+        <p class="note">外圈為 100%。藍色是你各題型的平均得分率，金色是所有作答者的平均，粉紅虛線是你自己的整體平均。</p>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <h3><span>各題型明細</span><span class="sub">依表現排序</span></h3>
+          <div class="cats" id="cats"></div>
+        </div>
+        <div class="card advice">
+          <h3><span>學習建議</span></h3>
+          <p id="advice">按下按鈕，依你的作答紀錄產生建議。</p>
+          <button class="cta" id="btn-advice" style="width:100%">產生我的學習建議</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 逐題比較 ── -->
+  <section class="page" id="p-qs">
+    <div class="card" style="margin-bottom:14px">
+      <h3><span>你落後最多的題目</span><span class="sub">和全體平均比較</span></h3>
+      <p class="note" style="margin:0 0 12px">
+        紅色代表你比全體平均低，綠色代表你比平均高。
+        <b style="color:var(--txt)">大家都錯的題目不用太擔心，只有你錯的才是要補的洞。</b>
+      </p>
+      <div class="qlist" id="q-behind"><div class="empty">讀取中⋯⋯</div></div>
+    </div>
+    <div class="card">
+      <h3><span>你表現最好的題目</span></h3>
+      <div class="qlist" id="q-ahead"></div>
+    </div>
+  </section>
+
+  <!-- ── 錯題本 ── -->
+  <section class="page" id="p-wb">
+    <div class="card" id="wb-card">
+      <h3><span>錯題本</span><span class="sub" id="wb-count"></span></h3>
+      <p class="note" style="margin:0 0 14px">
+        列出你答錯、而且之後沒有訂正過的題目。做對一次就會從這裡移除。
+      </p>
+      <button class="cta" id="btn-practice" style="width:100%;max-width:340px">開始練習</button>
+      <div class="wb" id="wb-list" style="margin-top:16px"></div>
+    </div>
+
+    <div class="card" id="pr-card" hidden>
+      <h3><span id="pr-meta"></span><span class="sub" id="pr-progress"></span></h3>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+        <span class="badge" id="pr-badge" hidden></span>
+      </div>
+      <p class="qtext" id="pr-q"></p>
+      <div class="opts" id="pr-opts"></div>
+      <div class="expbox" id="pr-exp" hidden>
+        <h4>解析</h4>
+        <p id="pr-exp-text"></p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:16px">
+        <button class="cta" id="pr-btn">送出答案</button>
+        <button class="ghost" id="pr-quit">結束練習</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://s90194yeu-collab.github.io/atkqa-game/assets/manifest.js?v=582b7d89ab"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/stats.js?v=5ba18bc340"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<!-- 畫面空殼：由 Google Apps Script 讀取後提供給學生；程式與素材在 GitHub -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#dcefff">
+<title>教師分析後臺　關於答對率 等於攻擊力這件事</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/teacher.css?v=67beec51f4">
+</head>
+<body>
+
+<!-- ═════ 密碼閘 ═════ -->
+<div class="gate" id="gate">
+  <h2>🔐 教師分析後臺</h2>
+  <p>這個頁面包含個別學生的作答紀錄，<br>請輸入教師密碼。</p>
+  <input type="password" id="pw" placeholder="教師密碼" autocomplete="off">
+  <button class="btn" id="go">進入</button>
+  <p class="err" id="gate-err"></p>
+</div>
+
+<!-- ═════ 主體 ═════ -->
+<div class="wrap" id="main" hidden>
+  <h1>教師分析後臺</h1>
+  <p class="sub" id="scope-note">關於答對率等於攻擊力這件事</p>
+
+  <div class="bar">
+    <label>班級</label>
+    <select id="f-cls"><option value="__ALL__">全部學生</option></select>
+    <label>課次</label>
+    <select id="f-lesson"><option value="__ALL__">全部課次</option></select>
+    <button class="btn ghost" id="reload">重新整理</button>
+    <span style="flex:1"></span>
+    <button class="btn ghost" id="logout">登出</button>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-p="overview">總覽</button>
+    <button class="tab" data-p="cats">題型分析</button>
+    <button class="tab" data-p="hard">易錯題與誘答</button>
+    <button class="tab" data-p="class">班級比較</button>
+    <button class="tab" data-p="students">學生名單</button>
+    <button class="tab" data-p="missing">未參與</button>
+    <button class="tab" data-p="raid">全班討伐與活動</button>
+    <button class="tab" data-p="ai">AI 教學建議</button>
+  </div>
+
+  <div id="body"></div>
+</div>
+
+<script src="https://s90194yeu-collab.github.io/atkqa-game/assets/manifest.js?v=582b7d89ab"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/teacher.js?v=008aa4c0bd"></script>
+</body>
+</html>

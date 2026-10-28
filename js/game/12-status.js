@@ -7,11 +7,39 @@ const STAGES = [
   {name:'深海遺跡', base:'#a3dcee'}, {name:'黃沙古城', base:'#fff0cc'}, {name:'櫻花庭園', base:'#ffeef5'},
   {name:'軌道要塞', base:'#ecf1fb'}, {name:'血月鬼域', base:'#efd0e3'}, {name:'翠綠平原', base:'#dcf1ff'}
 ];
+/* 戰場水彩背景：放在 GitHub 的 assets/bg/，檔名 = 戰場清單的順序號 + 戰場名稱。
+   找不到檔案時（STAGE_BG_MISS 記錄）就用原本的 SVG 場景。 */
+const STAGE_BG_MISS = {};
+function stageBgUrl(name){
+  const i = STAGES.findIndex(s => s.name === name);
+  if(i < 0 || !window.ATKQA_SITE || STAGE_BG_MISS[name]) return '';
+  return ATKQA_SITE + 'assets/bg/' + String(i + 1).padStart(2, '0') + '_' + encodeURIComponent(name) + '.webp';
+}
 function rollStage(){
   const st = STAGES[Math.floor(Math.random()*STAGES.length)];
   const el = $('stage');
   const bgEl = $('stage-bg');
-  if(bgEl){ bgEl.style.backgroundColor = st.base; bgEl.style.backgroundImage = SCENE.image(st.name); }
+  if(bgEl){
+    bgEl.style.backgroundColor = st.base;
+    const svgBg = function(){   // 水彩圖讀不到時，退回程式畫的 SVG 場景
+      bgEl.style.backgroundImage = SCENE.image(st.name);
+      bgEl.style.backgroundSize = bgEl.style.backgroundRepeat = bgEl.style.backgroundPosition = '';
+    };
+    const url = stageBgUrl(st.name);
+    if(!url){ svgBg(); }
+    else{
+      svgBg();   // 先放 SVG，水彩圖載入完成再換上，不會有空白
+      const im = new Image();
+      im.onload = function(){
+        bgEl.style.backgroundImage = 'url("' + url + '")';
+        bgEl.style.backgroundSize = 'cover';
+        bgEl.style.backgroundRepeat = 'no-repeat';
+        bgEl.style.backgroundPosition = 'center';
+      };
+      im.onerror = function(){ STAGE_BG_MISS[st.name] = 1; };
+      im.src = url;
+    }
+  }
   log('🏟️ 戰場：' + st.name, 'var(--dim)');
 }
 

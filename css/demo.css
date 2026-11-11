@@ -49,7 +49,7 @@ body.demo-run #demo-shield{display:block}
   padding:4px 12px;border-radius:999px;background:var(--demo-pink);color:#fff;
   font:900 13px/1.4 "Noto Sans TC",sans-serif;letter-spacing:.1em;box-shadow:0 3px 0 var(--demo-pink-d);
 }
-#demo-prog{flex:1;max-width:340px;height:10px;border-radius:99px;background:rgba(255,255,255,.75);
+#demo-prog{flex:1;max-width:180px;height:10px;border-radius:99px;background:rgba(255,255,255,.75);
   border:2px solid rgba(59,51,102,.35);overflow:hidden}
 #demo-prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff6fa8,#f2ad00);transition:width .5s}
 #demo-prog-txt{font:700 12.5px/1 "Noto Sans TC",sans-serif;color:var(--demo-ink);

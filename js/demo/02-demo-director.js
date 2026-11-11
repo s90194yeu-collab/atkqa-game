@@ -184,7 +184,7 @@ function paintProgress(){
   const done = (typeof S !== 'undefined' && S.player) ? S.totalAnswered : 0;
   f.style.width = Math.min(100, Math.round(done / TOTAL * 100)) + '%';
   if(D.ended) t.textContent = '完成';
-  else if(S.player && scr() !== 'scr-select') t.textContent = '第 ' + S.round + ' 回合・已答 ' + done + ' / ' + TOTAL + ' 題';
+  else if(S.player && scr() !== 'scr-select') t.textContent = '已答 ' + done + ' / ' + TOTAL + ' 題';
   else t.textContent = '選角中';
 }
 

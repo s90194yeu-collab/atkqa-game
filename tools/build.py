@@ -22,6 +22,11 @@ PAGES = {
     'game':    {'css': ['css/game/*.css'], 'js': ['assets/manifest.js', 'js/game/*.js']},
     'stats':   {'css': ['css/stats.css'],  'js': ['js/stats.js']},
     'teacher': {'css': ['css/teacher.css'], 'js': ['js/teacher.js']},
+    # 展示模式：沿用遊戲的畫面樣板（src/game.html）與全部遊戲程式，再加上 js/demo/ 的自動操作。
+    # 輸出到儲存庫根目錄的 demo.html，直接由 GitHub Pages 提供，不經過 Apps Script，也不記入 release.json 的 pages。
+    'demo':    {'tpl': 'game', 'out': 'demo.html', 'extra': True,
+                'css': ['css/game/*.css', 'css/demo.css'],
+                'js': ['assets/manifest.js', 'js/game/*.js', 'js/demo/*.js']},
 }
 
 def sha(data):
@@ -56,19 +61,27 @@ def check_js(files):
 
 def main():
     pages = {}
+    extras = {}
     all_js = []
     os.makedirs(os.path.join(ROOT, 'pages'), exist_ok=True)
     for name, spec in PAGES.items():
-        src = open(os.path.join(ROOT, 'src', name + '.html'), encoding='utf-8').read()
+        tpl = spec.get('tpl', name)
+        src = open(os.path.join(ROOT, 'src', tpl + '.html'), encoding='utf-8').read()
         css, js = expand(spec['css']), expand(spec['js'])
         all_js += js
         for marker in ('<!--@STYLES-->', '<!--@SCRIPTS-->'):
             if src.count(marker) != 1:
-                sys.exit('[build] src/%s.html 必須剛好有一個 %s' % (name, marker))
+                sys.exit('[build] src/%s.html 必須剛好有一個 %s' % (tpl, marker))
         html = (src.replace('<!--@STYLES-->', '\n'.join(tag(f, 'css') for f in css))
                    .replace('<!--@SCRIPTS-->', '\n'.join(tag(f, 'js') for f in js)))
         html = html.replace('<!-- 畫面樣板：tools/build.py 會把 @STYLES／@SCRIPTS 換成實際的檔案清單，輸出到 pages/。請改這裡，不要直接改 pages/。 -->',
-                            '<!-- 由 tools/build.py 從 src/%s.html 產生，請勿直接修改。程式與素材在 GitHub，由 Google Apps Script 提供給學生。 -->' % name)
+                            '<!-- 由 tools/build.py 從 src/%s.html 產生，請勿直接修改。程式與素材在 GitHub，由 Google Apps Script 提供給學生。 -->' % tpl)
+        if spec.get('extra'):
+            html = html.replace('<title>關於答對率 等於攻擊力這件事</title>', '<title>展示模式｜關於答對率等於攻擊力這件事</title>')
+            out = os.path.join(ROOT, spec['out'])
+            open(out, 'w', encoding='utf-8').write(html)
+            extras[name] = {'file': spec['out'], 'css': len(css), 'js': len(js)}
+            continue
         out = os.path.join(ROOT, 'pages', name + '.html')
         open(out, 'w', encoding='utf-8').write(html)
         data = open(out, 'rb').read()
@@ -78,9 +91,9 @@ def main():
     release = 'r' + time.strftime('%Y%m%d') + '-' + sha(json.dumps(pages, sort_keys=True))[:8]
     images = len(glob.glob(os.path.join(ROOT, 'assets/img/*.webp')))
     music = len(glob.glob(os.path.join(ROOT, 'assets/bgm/*.m4a')))
-    json.dump({'release': release, 'site': SITE, 'pages': pages, 'images': images, 'music': music},
+    json.dump({'release': release, 'site': SITE, 'pages': pages, 'images': images, 'music': music, 'extras': extras},
               open(os.path.join(ROOT, 'release.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-    print('[build] 完成 %s　%s' % (release, '、'.join('%s（%d css／%d js）' % (k, v['css'], v['js']) for k, v in pages.items())))
+    print('[build] 完成 %s　%s' % (release, '、'.join('%s（%d css／%d js）' % (k, v['css'], v['js']) for k, v in list(pages.items()) + list(extras.items()))))
     print('[build] 推上 GitHub、等 1～2 分鐘後，在 Apps Script 執行 installGitHubFrontend 切換到這一版。')
 
 if __name__ == '__main__':

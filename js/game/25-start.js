@@ -54,6 +54,11 @@ $('btn-cards-back').onclick = function(){ show('scr-home'); sfx('tap'); };
 $('cd-close').onclick = function(){ $('card-detail').hidden = true; };
 $('btn-home-rules').onclick = function(){ $('scr-rules').classList.add('on'); };
 $('btn-home-codex').onclick = function(){ openCodex(); sfx('tap'); };
+/* 展示模式是獨立的網頁（demo.html，由電腦自動操作一整場），另開新分頁，不影響目前的遊戲 */
+$('btn-demo').onclick = function(){
+  sfx('tap');
+  window.open((window.ATKQA_SITE || '') + 'demo.html', '_blank');
+};
 /* 學生端一鍵清除：只刪自己的資料，需要連按兩次確認 */
 $('btn-wipe').onclick = function(){
   if(!(ME && ME.allowed)){ alert('未以學校帳號登入，沒有可清除的紀錄。'); return; }

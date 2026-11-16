@@ -1,0 +1,7 @@
+# 本機開發用，不上傳
+.DS_Store
+node_modules/
+.clasp.json
+.clasprc.json
+*.gs
+.env

@@ -130,11 +130,27 @@ function duelSideAlive(p, s){
   const f = (p.sides && p.sides[s] && p.sides[s].field) || [];
   return [0, 1, 2].some(function(k){ return f[k] && f[k].hp > 0; });
 }
+function duelNetMsg(e){
+  const m = (e && e.message) || String(e || '');
+  return /NetworkError|HTTP 0|連線失敗/.test(m) ? '連線中斷一下' : m;
+}
 async function duelDoTick(){
   if(!DU.mid) return;
   const step = DU.pub ? DU.pub.step : -1, mid = DU.mid;
-  try{ await duelGas('duelTick', mid); }
-  catch(e){ duelLog('⚠️ 裁判回應失敗：' + e.message, 'var(--ember)'); }
+  try{ await duelGas('duelTick', mid); DU.fails = 0; }
+  catch(e){
+    /* 兩邊都會請裁判推進，任一邊成功就好；這邊失敗但對戰已經往下走，就不必提示 */
+    const moved = DU.mid !== mid || !DU.pub || DU.pub.step !== step;
+    if(!moved){
+      DU.fails = (DU.fails || 0) + 1;
+      if(DU.fails <= 2){                         // 網路瞬斷：1.5 秒後安靜重送
+        clearTimeout(DU.timers.retry);
+        DU.timers.retry = setTimeout(duelDoTick, 1500);
+        return;
+      }
+      duelLog('⚠️ 網路不太穩，持續自動重試中（' + duelNetMsg(e) + '）', 'var(--ember)');
+    }
+  }
   clearTimeout(DU.timers.retry);
   DU.timers.retry = setTimeout(function(){
     if(DU.mid !== mid || !DU.pub || DU.pub.step !== step || DU.pub.phase === 'end' || DU.pub.phase === 'void') return;

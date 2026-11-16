@@ -205,7 +205,7 @@ function duelEnterMatch(mid){
   duelStopWaiting(false);
   dunsub('lobby'); dunsub('match');
   DU.countsFor = null;
-  DU.mid = mid; DU.pub = null; DU.priv = null; DU.side = null; DU.lastStep = -1; DU.retries = 0;
+  DU.mid = mid; DU.pub = null; DU.priv = null; DU.side = null; DU.lastStep = -1; DU.retries = 0; DU.fails = 0;
   DU.flags = { sub: {}, acted: {}, ready: {} };
   DU.played = {}; DU.shown = null; DU.teamSent = false; DU.team = [];
   $('duel-ticker').innerHTML = '';
@@ -220,7 +220,7 @@ function duelEnterMatch(mid){
     if(!p) return;
     DU.pub = p;
     if(p.players){ DU.side = p.players.p1 && p.players.p1.uid === DU.uid ? 'p1' : 'p2'; }
-    if(p.step !== DU.lastStep){ DU.lastStep = p.step; DU.retries = 0; }
+    if(p.step !== DU.lastStep){ DU.lastStep = p.step; DU.retries = 0; DU.fails = 0; }
     duelRoute(p, false);
     duelSchedule();
   }, 'match');

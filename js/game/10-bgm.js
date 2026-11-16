@@ -243,6 +243,7 @@ const BGM = (function(){
   /* ── 依畫面決定曲目 ── */
   function pick(id){
     if(id === 'scr-round') return null;                     // 回合結算：沿用目前的戰鬥音樂
+    if(id === 'scr-duel') return { name: window.DUEL_BGM || 'menu', dim:false };   // 雙人對戰：大廳用主選單曲，開戰換戰鬥曲
     if(id === 'scr-battle'){
       let dojo = false, last = false;
       try{ dojo = S.mode === 'dojo'; last = S.round >= CONFIG.rounds; }catch(e){}

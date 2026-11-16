@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/08-codex.css?v=14559d8d93">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/09-landscape.css?v=c74f881f2b">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/10-growth.css?v=fc785dc697">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/11-duel.css?v=422c6baf31">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/demo.css?v=73075f2384">
 </head>
 <body>
@@ -170,6 +171,7 @@
       <button class="cta" id="btn-goto-select">選擇角色，開始挑戰</button>
       <button class="ghostbtn" id="btn-home-rules" style="margin-top:0">📖 遊戲規則</button>
       <button class="ghostbtn" id="btn-home-codex" style="margin-top:0">📋 角色清冊</button>
+      <button class="ghostbtn duel-entry" id="btn-duel" style="margin-top:0">⚔️ 雙人對戰</button>
       <button class="ghostbtn" id="btn-demo" style="margin-top:0">▶ 展示模式（電腦自動示範）</button>
     </div>
   </div>
@@ -590,6 +592,161 @@
   </div>
 </div>
 
+<!-- ══════════ 雙人對戰（js/duel/、css/game/11-duel.css） ══════════ -->
+<div class="screen" id="scr-duel">
+  <div class="topbar-mini duel-top">
+    <button class="backbtn" id="duel-back">← 返回首頁</button>
+    <h2 id="duel-title">雙人對戰</h2>
+    <span class="lesson-tag" id="duel-lesson"></span>
+  </div>
+  <div class="duel-wrap">
+
+    <section class="duel-view" data-view="msg">
+      <div class="duel-card duel-center">
+        <div class="duel-spin" id="duel-spin"></div>
+        <p class="duel-msg" id="duel-msg">連線中⋯⋯</p>
+        <button class="ghostbtn" id="duel-msg-btn" hidden>返回首頁</button>
+      </div>
+    </section>
+
+    <section class="duel-view" data-view="lobby">
+      <div class="duel-card duel-me">
+        <div class="duel-tier"><b id="duel-tier">見習</b><span id="duel-rating">1000</span></div>
+        <div class="duel-rec">
+          <p id="duel-record">0 勝 0 敗 0 和</p>
+          <p id="duel-today">今天已計分 0 / 5 場</p>
+        </div>
+      </div>
+      <div class="duel-card">
+        <p class="duel-live"><span>本課等待配對中 <b id="duel-waiting">0</b> 人</span><span>對戰中 <b id="duel-active">0</b> 場</span></p>
+        <p class="duel-closed" id="duel-closed" hidden>目前不是對戰時段，請等老師開放。</p>
+        <div class="duel-actions" id="duel-actions">
+          <button class="cta" id="duel-random">隨機配對</button>
+          <button class="ghostbtn" id="duel-host">開房（產生房號）</button>
+          <div class="duel-join">
+            <input id="duel-code-in" inputmode="numeric" maxlength="4" placeholder="輸入 4 位數房號" autocomplete="off">
+            <button class="ghostbtn" id="duel-join">加入</button>
+          </div>
+        </div>
+        <p class="duel-err" id="duel-lobby-err" hidden></p>
+      </div>
+      <div class="duel-card duel-rules">
+        <h4>怎麼打</h4>
+        <ul>
+          <li>帶 <b>8</b> 位角色上陣，場上同時 <b>3</b> 位；倒下就由替補上場。</li>
+          <li>每題 <b>25 秒</b>作答、<b>10 秒</b>選招：答對率就是這一擊的威力。</li>
+          <li>先讓對方全部倒下就獲勝；15 題打完則比全隊剩餘體力。</li>
+          <li>答得又對又快的一方先出手。對戰積分會另列一項，加進學期積分。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="duel-view" data-view="wait">
+      <div class="duel-card duel-center">
+        <div class="duel-spin"></div>
+        <p class="duel-msg">尋找對手中⋯⋯ <b id="duel-wait-sec">0</b> 秒</p>
+        <p class="duel-sub">本課等待配對中 <b id="duel-waiting2">0</b> 人</p>
+        <p class="duel-sub" id="duel-wait-hint" hidden>目前人比較少，也可以開房、把房號告訴同學。</p>
+        <button class="ghostbtn" id="duel-cancel">取消配對</button>
+      </div>
+    </section>
+
+    <section class="duel-view" data-view="room">
+      <div class="duel-card duel-center">
+        <p class="duel-sub">把房號告訴同學，對方輸入後就會開戰</p>
+        <div class="duel-code" id="duel-code">----</div>
+        <p class="duel-sub">房號有效時間還剩 <b id="duel-room-left">5:00</b></p>
+        <button class="ghostbtn" id="duel-room-cancel">取消房間</button>
+      </div>
+    </section>
+
+    <section class="duel-view" data-view="team">
+      <div class="duel-card duel-teamhead">
+        <div class="duel-vs"><b id="duel-t-me">我</b><i>VS</i><b id="duel-t-op">對手</b></div>
+        <div class="duel-timer"><i id="duel-t-bar"></i><span id="duel-t-left">60</span></div>
+      </div>
+      <div class="duel-card">
+        <h4 class="duel-h">我的隊伍 <small>前 3 位先發，其餘依序替補；點一下移除</small></h4>
+        <div class="duel-slots" id="duel-slots"></div>
+        <div class="duel-teambtns">
+          <button class="ghostbtn" id="duel-last">套用上次隊伍</button>
+          <button class="ghostbtn" id="duel-fill">隨機補滿</button>
+          <button class="cta" id="duel-submit" disabled>送出隊伍</button>
+        </div>
+        <p class="duel-sub" id="duel-team-status"></p>
+      </div>
+      <div class="duel-card">
+        <nav class="duel-tabs" id="duel-tabs"></nav>
+        <div class="duel-roster" id="duel-roster"></div>
+      </div>
+    </section>
+
+    <section class="duel-view" data-view="battle">
+      <div class="duel-hud">
+        <div class="duel-hud-side me"><b id="duel-h-me">我</b><span><i id="duel-h-mehp"></i></span><small id="duel-h-mebench">替補 5</small></div>
+        <div class="duel-hud-mid">
+          <b id="duel-h-q">第 1 / 15 題</b>
+          <div class="duel-timer"><i id="duel-b-bar"></i><span id="duel-b-left">25</span></div>
+          <small id="duel-h-phase">作答中</small>
+        </div>
+        <div class="duel-hud-side op"><b id="duel-h-op">對手</b><span><i id="duel-h-ophp"></i></span><small id="duel-h-opbench">替補 5</small></div>
+      </div>
+      <div class="duel-field">
+        <div class="duel-col me" id="duel-col-me"></div>
+        <div class="duel-center-col">
+          <div class="duel-card duel-q" id="duel-q">
+            <p class="duel-qmeta" id="duel-qmeta"></p>
+            <p class="duel-qtext" id="duel-qtext"></p>
+            <div class="duel-opts" id="duel-opts"></div>
+            <button class="cta" id="duel-answer" disabled>送出答案</button>
+            <p class="duel-sub" id="duel-q-status"></p>
+          </div>
+          <div class="duel-card duel-act" id="duel-act" hidden>
+            <p class="duel-charge">發動權 <b id="duel-charge">0%</b><span id="duel-act-hint"></span></p>
+            <div class="duel-step" id="duel-step-who"><h5>① 誰出手（點左邊我方角色）</h5><p id="duel-who-name">—</p></div>
+            <div class="duel-step"><h5>② 招式</h5><div class="duel-moves" id="duel-moves"></div></div>
+            <div class="duel-step" id="duel-step-target"><h5>③ 目標（點右邊對手角色）</h5><p id="duel-target-name">—</p></div>
+            <div class="duel-step duel-bench" id="duel-bench" hidden><h5>換誰上場</h5><div id="duel-bench-list"></div></div>
+            <button class="cta" id="duel-go" disabled>確定出招</button>
+            <p class="duel-sub" id="duel-act-status"></p>
+          </div>
+          <div class="duel-card duel-exp" id="duel-exp" hidden>
+            <p class="duel-verdict" id="duel-exp-verdict"></p>
+            <p class="duel-exptext" id="duel-exp-text"></p>
+            <div class="duel-step" id="duel-pick" hidden><h5>倒下的位置要換誰上場？</h5><div id="duel-pick-list"></div></div>
+            <button class="cta" id="duel-next">下一題</button>
+            <p class="duel-sub" id="duel-next-status"></p>
+          </div>
+          <div class="duel-ticker" id="duel-ticker"></div>
+        </div>
+        <div class="duel-col op" id="duel-col-op"></div>
+      </div>
+      <div class="duel-foot">
+        <span id="duel-net" class="duel-net on">● 已連線</span>
+        <button class="duel-surrender" id="duel-surrender">投降</button>
+      </div>
+    </section>
+
+    <section class="duel-view" data-view="result">
+      <div class="duel-card duel-center">
+        <h2 class="duel-result-title" id="duel-r-title">勝利！</h2>
+        <p class="duel-sub" id="duel-r-reason"></p>
+        <table class="duel-rtable">
+          <thead><tr><th></th><th id="duel-r-me">我</th><th id="duel-r-op">對手</th></tr></thead>
+          <tbody id="duel-r-body"></tbody>
+        </table>
+        <div class="duel-r-pts" id="duel-r-pts"></div>
+        <p class="duel-sub" id="duel-r-note"></p>
+        <div class="duel-teambtns">
+          <button class="cta" id="duel-again">再戰一場</button>
+          <button class="ghostbtn" id="duel-home">回首頁</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
 <script src="https://s90194yeu-collab.github.io/atkqa-game/assets/manifest.js?v=582b7d89ab"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/01-boot.js?v=1817ff20fd"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/02-config.js?v=e33984d425"></script>
@@ -600,7 +757,7 @@
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/07-semester.js?v=a34ff8cf40"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/08-lessons.js?v=220611f3ef"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/09-audio.js?v=41741401a1"></script>
-<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/10-bgm.js?v=6ba6d7cbd2"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/10-bgm.js?v=391159bfef"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/11-scenes.js?v=a43c6f5503"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/12-status.js?v=3bc2318eab"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/13-fx.js?v=aab44ad4ce"></script>

@@ -1,0 +1,155 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "config": {
+      ".read": "auth != null"
+    },
+    "stats": {
+      ".read": "auth != null"
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    },
+    "queue": {
+      "$lesson": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (root.child('config/open').val() === true && root.child('config/lessonId').val() === $lesson))",
+          ".validate": "newData.hasChildren(['sid', 't0', 't'])",
+          "sid": {
+            ".validate": "newData.isString() && newData.val().length <= 64"
+          },
+          "t0": {
+            ".validate": "newData.isNumber() && newData.val() <= now"
+          },
+          "t": {
+            ".validate": "newData.isNumber() && newData.val() <= now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "matches": {
+      "$mid": {
+        "public": {
+          ".read": "auth != null && (data.child('players/p1/uid').val() === auth.uid || data.child('players/p2/uid').val() === auth.uid || auth.token.tch === 1)"
+        },
+        "private": {
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid"
+          }
+        },
+        "ans": {
+          "$n": {
+            "$uid": {
+              ".read": "auth != null && auth.uid === $uid",
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid) && root.child('matches/'+$mid+'/public/phase').val() === 'answer' && root.child('matches/'+$mid+'/public/qk').val() === $n && now <= root.child('matches/'+$mid+'/public/deadline').val() + 1500",
+              ".validate": "newData.hasChildren(['codes', 't']) && newData.child('t').val() === now",
+              "codes": {
+                "$i": {
+                  ".validate": "newData.isString() && newData.val().length <= 12"
+                }
+              },
+              "t": {
+                ".validate": true
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        },
+        "sub": {
+          ".read": "auth != null && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid)",
+          "$n": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid) && root.child('matches/'+$mid+'/public/phase').val() === 'answer' && root.child('matches/'+$mid+'/public/qk').val() === $n && now <= root.child('matches/'+$mid+'/public/deadline').val() + 1500",
+              ".validate": "newData.val() === true"
+            }
+          }
+        },
+        "act": {
+          "$n": {
+            "$uid": {
+              ".read": "auth != null && auth.uid === $uid",
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid) && root.child('matches/'+$mid+'/public/phase').val() === 'action' && root.child('matches/'+$mid+'/public/qk').val() === $n && now <= root.child('matches/'+$mid+'/public/deadline').val() + 1500",
+              ".validate": "newData.hasChildren(['who']) && newData.child('who').isNumber()",
+              "who": {
+                ".validate": "newData.val() >= 0 && newData.val() <= 2"
+              },
+              "move": {
+                ".validate": "newData.isNumber()"
+              },
+              "target": {
+                ".validate": "newData.isNumber()"
+              },
+              "swap": {
+                ".validate": "newData.isNumber()"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        },
+        "acted": {
+          ".read": "auth != null && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid)",
+          "$n": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid) && root.child('matches/'+$mid+'/public/phase').val() === 'action' && root.child('matches/'+$mid+'/public/qk').val() === $n && now <= root.child('matches/'+$mid+'/public/deadline').val() + 1500",
+              ".validate": "newData.val() === true"
+            }
+          }
+        },
+        "ready": {
+          ".read": "auth != null && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid)",
+          "$n": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid) && root.child('matches/'+$mid+'/public/phase').val() === 'show' && root.child('matches/'+$mid+'/public/qk').val() === $n",
+              ".validate": "newData.val() === true"
+            }
+          }
+        },
+        "pick": {
+          "$n": {
+            "$uid": {
+              ".read": "auth != null && auth.uid === $uid",
+              ".write": "auth != null && auth.uid === $uid && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid) && root.child('matches/'+$mid+'/public/phase').val() === 'show' && root.child('matches/'+$mid+'/public/qk').val() === $n",
+              ".validate": "newData.hasChildren(['slot', 'bench']) && newData.child('slot').isNumber() && newData.child('bench').isNumber()",
+              "slot": {
+                ".validate": true
+              },
+              "bench": {
+                ".validate": true
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        },
+        "ping": {
+          ".read": "auth != null && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid)",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && (root.child('matches/'+$mid+'/public/players/p1/uid').val() === auth.uid || root.child('matches/'+$mid+'/public/players/p2/uid').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['on', 't']) && newData.child('on').isBoolean() && newData.child('t').isNumber()",
+            "on": {
+              ".validate": true
+            },
+            "t": {
+              ".validate": true
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

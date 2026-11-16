@@ -19,7 +19,7 @@ SITE = 'https://s90194yeu-collab.github.io/atkqa-game/'
 
 # 每個畫面要載入的檔案（依序）。萬用字元會依檔名排序，所以檔名前面的編號就是載入順序。
 PAGES = {
-    'game':    {'css': ['css/game/*.css'], 'js': ['assets/manifest.js', 'js/game/*.js']},
+    'game':    {'css': ['css/game/*.css'], 'js': ['assets/manifest.js', 'js/game/*.js', 'js/duel/*.js']},
     'stats':   {'css': ['css/stats.css'],  'js': ['js/stats.js']},
     'teacher': {'css': ['css/teacher.css'], 'js': ['js/teacher.js']},
     # 展示模式：沿用遊戲的畫面樣板（src/game.html）與全部遊戲程式，再加上 js/demo/ 的自動操作。
@@ -59,7 +59,22 @@ def check_js(files):
     if bad:
         sys.exit('[build] 語法錯誤：\n' + '\n\n'.join(bad))
 
+def export_duel():
+    """雙人對戰：把角色數值與戰鬥常數匯出成 assets/duel/chars.json（Apps Script 的裁判會讀它）"""
+    node = shutil.which('node')
+    if node:
+        r = subprocess.run([node, os.path.join(ROOT, 'tools', 'duel_export.js')], capture_output=True, text=True)
+        if r.returncode:
+            sys.exit('[build] 匯出對戰角色資料失敗：\n' + r.stderr.strip())
+        print(r.stdout.strip())
+    else:
+        print('[build] 沒有 Node.js，沿用現有的 assets/duel/chars.json')
+    f = os.path.join(ROOT, 'assets', 'duel', 'chars.json')
+    data = open(f, 'rb').read()
+    return {'file': 'assets/duel/chars.json', 'sha256': sha(data), 'bytes': len(data)}
+
 def main():
+    duel = export_duel()
     pages = {}
     extras = {}
     all_js = []
@@ -91,7 +106,7 @@ def main():
     release = 'r' + time.strftime('%Y%m%d') + '-' + sha(json.dumps(pages, sort_keys=True))[:8]
     images = len(glob.glob(os.path.join(ROOT, 'assets/img/*.webp')))
     music = len(glob.glob(os.path.join(ROOT, 'assets/bgm/*.m4a')))
-    json.dump({'release': release, 'site': SITE, 'pages': pages, 'images': images, 'music': music, 'extras': extras},
+    json.dump({'release': release, 'site': SITE, 'pages': pages, 'images': images, 'music': music, 'extras': extras, 'duel': duel},
               open(os.path.join(ROOT, 'release.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('[build] 完成 %s　%s' % (release, '、'.join('%s（%d css／%d js）' % (k, v['css'], v['js']) for k, v in list(pages.items()) + list(extras.items()))))
     print('[build] 推上 GitHub、等 1～2 分鐘後，在 Apps Script 執行 installGitHubFrontend 切換到這一版。')

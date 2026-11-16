@@ -104,6 +104,7 @@ function render(){
   if(PAGE === 'class')    return drawClassCompare();
   if(PAGE === 'raid')     return drawRaid();
   if(PAGE === 'ai')       return drawAI();
+  if(PAGE === 'duel')     return drawDuel();
 }
 
 function drawOverview(d){
@@ -400,4 +401,100 @@ function md(t){
        .replace(/^[-*] (.*)$/gm, '<li>$1</li>');
   h = h.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, function(m){ return '<ul>' + m + '</ul>'; });
   return h;
+}
+
+
+/* ── 雙人對戰：開放與關閉、指定課次、即時狀況、對戰紀錄（伺服器端在 Duel.gs） ── */
+let DUEL_DAY = '';
+function duelRun(fn, args, ok){
+  const r = google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){
+    const box = $('duel-t-err');
+    if(box){ box.textContent = '失敗：' + (e && e.message ? e.message : e); box.hidden = false; }
+    else showErr(e);
+  });
+  r[fn].apply(r, [TOKEN].concat(args || []));
+}
+function drawDuel(){
+  loading();
+  duelRun('duelTeacherState', [], function(d){
+    const c = d.config || {}, q = d.qCount || 15;
+    let h = '<div class="panel"><h3>對戰設定<span>學生在遊戲首頁按「⚔️ 雙人對戰」進入</span></h3>';
+    h += '<div class="cards">'
+       + kpi('目前狀態', d.open ? '開放中' : '關閉', d.open && c.closeAt ? '到 ' + new Date(c.closeAt).toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'}) + ' 自動關閉' : (d.open ? '直到手動關閉' : '學生只能看大廳'))
+       + kpi('對戰課次', esc(c.lessonName || '尚未指定'), '每場 ' + q + ' 題')
+       + kpi('等待配對', (d.live && d.live.waiting) || 0, '人')
+       + kpi('對戰中', (d.live && d.live.matches ? d.live.matches.length : 0), '場')
+       + '</div>';
+    h += '<div class="bar" style="flex-wrap:wrap;gap:8px">'
+       + '<label>課次</label><select id="duel-t-lesson">'
+       + (d.lessons || []).map(function(L){
+           const ok = L.count >= q;
+           return '<option value="' + esc(L.id) + '"' + (L.id === c.lessonId ? ' selected' : '') + (ok ? '' : ' disabled') + '>'
+             + esc(L.name) + '（' + L.count + ' 題' + (ok ? '' : '，不足 ' + q + ' 題') + '）</option>';
+         }).join('') + '</select>'
+       + '<label>開放</label><select id="duel-t-min"><option value="0">直到手動關閉</option><option value="40">40 分鐘</option>'
+       + '<option value="50" selected>50 分鐘</option><option value="90">90 分鐘</option><option value="1440">今天整天</option></select>'
+       + '<button class="btn" id="duel-t-open">開放對戰</button>'
+       + '<button class="btn ghost" id="duel-t-close"' + (d.open ? '' : ' disabled') + '>關閉對戰</button>'
+       + '<button class="btn ghost" id="duel-t-refresh">重新整理</button></div>'
+       + '<p class="empty warn" id="duel-t-err" hidden></p>'
+       + '<p class="qstem">關閉後，進行中的對戰可以打完，但不能再開新的一場。規則數字（題數、秒數、計分）可在試算表「對戰設定」工作表調整。</p></div>';
+
+    const live = (d.live && d.live.matches) || [];
+    h += '<div class="panel"><h3>進行中的對戰<span>' + live.length + ' 場</span></h3>';
+    if(d.live && d.live.error) h += '<p class="empty warn">' + esc(d.live.error) + '</p>';
+    if(!live.length) h += '<p class="empty">目前沒有進行中的對戰。</p>';
+    else{
+      h += '<div class="scroll"><table class="tbl"><tr><th>玩家 1</th><th>玩家 2</th><th>進度</th><th class="num">剩餘體力</th></tr>';
+      live.forEach(function(m){
+        const ph = {team:'組隊中', answer:'作答', action:'選招', show:'演出'}[m.phase] || m.phase;
+        h += '<tr><td><b>' + esc(m.p1) + '</b></td><td><b>' + esc(m.p2) + '</b></td><td>第 ' + (m.q || 0) + ' 題・' + ph + '</td>'
+           + '<td class="num">' + m.hp1 + '% ： ' + m.hp2 + '%</td></tr>';
+      });
+      h += '</table></div>';
+    }
+    h += '</div>';
+
+    h += '<div class="panel"><h3>對戰紀錄<span>可把有問題的一場標記無效，雙方的對戰積分與段分會退回</span></h3>'
+       + '<div class="bar"><label>日期</label><input type="date" id="duel-t-day" value="' + (DUEL_DAY || new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Taipei'})) + '">'
+       + '<button class="btn ghost" id="duel-t-log">查詢</button></div><div id="duel-t-logbox"><div class="loading">載入中…</div></div></div>';
+    $('body').innerHTML = h;
+
+    $('duel-t-open').onclick = function(){
+      this.disabled = true;
+      duelRun('duelTeacherSet', [{ open: true, lessonId: $('duel-t-lesson').value, minutes: Number($('duel-t-min').value) }], drawDuel);
+    };
+    $('duel-t-close').onclick = function(){ this.disabled = true; duelRun('duelTeacherSet', [{ open: false }], drawDuel); };
+    $('duel-t-refresh').onclick = drawDuel;
+    $('duel-t-log').onclick = function(){ DUEL_DAY = $('duel-t-day').value; drawDuelLog(); };
+    drawDuelLog();
+  });
+}
+function drawDuelLog(){
+  const box = $('duel-t-logbox'); if(!box) return;
+  const day = ($('duel-t-day') && $('duel-t-day').value) || '';
+  duelRun('duelTeacherLog', [day], function(rows){
+    if(!rows || !rows.length){ box.innerHTML = '<p class="empty">這一天沒有對戰紀錄。</p>'; return; }
+    const why = { wipe:'全滅', time:'題目打完', dc:'斷線', forfeit:'投降' };
+    let h = '<div class="scroll"><table class="tbl"><tr><th>時間</th><th>課次</th><th>玩家 1</th><th>玩家 2</th><th>結果</th>'
+          + '<th class="num">答對率</th><th class="num">對戰積分</th><th class="num">段分</th><th></th></tr>';
+    rows.forEach(function(r){
+      const res = r.result === 'draw' ? '平手' : (r.result === 'p1' ? r.p1 + ' 勝' : (r.result === 'p2' ? r.p2 + ' 勝' : '作廢'));
+      h += '<tr' + (r.void ? ' style="opacity:.45"' : '') + '><td>' + esc(r.time) + '</td><td style="font-size:.8rem">' + esc(r.lesson) + '</td>'
+         + '<td><b>' + esc(r.p1) + '</b></td><td><b>' + esc(r.p2) + '</b></td>'
+         + '<td>' + esc(res) + '<div class="qstem">' + esc(why[r.reason] || r.reason) + (r.mode === 'room' ? '・房號' : '') + '</div></td>'
+         + '<td class="num">' + r.rate1 + '% ： ' + r.rate2 + '%</td><td class="num">+' + r.pts1 + ' ： +' + r.pts2 + '</td>'
+         + '<td class="num">' + (r.d1 > 0 ? '+' : '') + r.d1 + ' ： ' + (r.d2 > 0 ? '+' : '') + r.d2 + '</td>'
+         + '<td>' + (r.void ? '已無效' : '<button class="btn ghost" data-mid="' + esc(r.mid) + '" style="padding:4px 12px">標記無效</button>') + '</td></tr>';
+    });
+    h += '</table></div>';
+    box.innerHTML = h;
+    box.querySelectorAll('button[data-mid]').forEach(function(b){
+      b.onclick = function(){
+        if(!confirm('確定把這一場標記為無效？雙方的對戰積分與段分會退回。')) return;
+        b.disabled = true;
+        duelRun('duelTeacherVoid', [b.dataset.mid], drawDuelLog);
+      };
+    });
+  });
 }

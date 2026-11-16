@@ -92,6 +92,14 @@
               "swap": {
                 ".validate": "newData.isNumber()"
               },
+              "sp": {
+                "$i": {
+                  ".validate": "newData.isString() && newData.val().length <= 12"
+                }
+              },
+              "ab": {
+                ".validate": "newData.isBoolean()"
+              },
               "$other": {
                 ".validate": false
               }

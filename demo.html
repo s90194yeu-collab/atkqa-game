@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/08-codex.css?v=14559d8d93">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/09-landscape.css?v=c74f881f2b">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/10-growth.css?v=fc785dc697">
-<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/11-duel.css?v=a9771be8a2">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/11-duel.css?v=e67369cb87">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/demo.css?v=73075f2384">
 </head>
 <body>
@@ -710,10 +710,13 @@
           <div class="duel-card duel-act" id="duel-act" hidden>
             <p class="duel-charge">發動權 <b id="duel-charge">0%</b><span id="duel-act-hint"></span></p>
             <div class="duel-step" id="duel-step-who"><h5>① 誰出手（點左邊我方角色）</h5><p id="duel-who-name">—</p></div>
-            <div class="duel-step"><h5>② 招式</h5><div class="duel-moves" id="duel-moves"></div></div>
+            <div class="duel-step" id="duel-step-moves"><h5>② 招式</h5><div class="duel-moves" id="duel-moves"></div></div>
             <div class="duel-step" id="duel-step-target"><h5>③ 目標（點右邊對手角色）</h5><p id="duel-target-name">—</p></div>
             <div class="duel-step duel-bench" id="duel-bench" hidden><h5>換誰上場</h5><div id="duel-bench-list"></div></div>
+            <div class="duel-step" id="duel-step-ab"><button class="duel-ab" id="duel-ab" hidden></button></div>
+            <div class="duel-step" id="duel-step-sp"><h5>精神指令 <span id="duel-sp-now"></span><small>（可複選，每種一場一次）</small></h5><div class="duel-sps" id="duel-sps"></div></div>
             <button class="cta" id="duel-go" disabled>確定出招</button>
+            <button class="duel-skip" id="duel-skip">不用指令，略過</button>
             <p class="duel-sub" id="duel-act-status"></p>
           </div>
           <div class="duel-card duel-exp" id="duel-exp" hidden>

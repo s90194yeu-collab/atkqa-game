@@ -120,14 +120,24 @@ function duelEarlyDone(p){
   if(p.phase === 'answer') return both(DU.flags.sub[q]);
   if(p.phase === 'action'){
     const ch = p.charge || {}, acted = DU.flags.acted[q] || {};
-    const need = function(s){ return Number(ch[s] || 0) > 0 && duelSideAlive(p, s); };
+    const need = function(s){ return duelSideAlive(p, s) && (Number(ch[s] || 0) > 0 || duelSideZeroCast(p, s)); };
     return (!need('p1') || !!acted[u.p1.uid]) && (!need('p2') || !!acted[u.p2.uid]);
   }
   if(p.phase === 'show') return both(DU.flags.ready[q]);
   return false;
 }
+/* 沒有發動權、但場上角色還能用防守類精神指令：要等他按「確定」或「略過」（與裁判同一規則） */
+function duelSideZeroCast(p, s){
+  const side = (p.sides && p.sides[s]) || {}, used = side.spUsed || {}, sp = Number(side.sp || 0);
+  const ok = ['focus', 'dodge', 'iron', 'guts', 'bless'];
+  const rs = (DU.chars && DU.chars.roleSpirits) || {}, cost = (DU.chars && DU.chars.spirits) || {};
+  return duelArr(side.field).some(function(f){
+    if(!f || f.hp <= 0) return false;
+    return (rs[f.role] || rs.balance || []).some(function(k){ return ok.indexOf(k) >= 0 && !used[k] && cost[k] && cost[k].sp <= sp; });
+  });
+}
 function duelSideAlive(p, s){
-  const f = (p.sides && p.sides[s] && p.sides[s].field) || [];
+  const f = duelArr(p.sides && p.sides[s] && p.sides[s].field);
   return [0, 1, 2].some(function(k){ return f[k] && f[k].hp > 0; });
 }
 function duelNetMsg(e){

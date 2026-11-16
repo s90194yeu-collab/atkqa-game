@@ -171,6 +171,9 @@
 .duel-opt.wrong{border-color:var(--ember);background:#fff0f3}
 .duel-opt:disabled{cursor:default}
 .duel-q .cta{width:100%}
+/* 選招時題目已經答完：只留題幹一行，選招面板直接看得到（正解在解析時再看） */
+.duel-q.acting .duel-opts,.duel-q.acting .duel-qmeta{display:none}
+.duel-q.acting .duel-qtext{font-size:14px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .duel-wait-q{text-align:center;padding:26px 0;font-family:var(--display);font-size:28px;color:var(--sakura-dd)}
 
 .duel-charge{margin:0 0 8px;font-size:15px;color:var(--ink)}
@@ -186,9 +189,46 @@
 }
 .duel-move small{display:block;color:var(--dim);font-size:11px}
 .duel-move.on{border-color:var(--sakura);background:#fff3f8}
-.duel-move.guard.on{border-color:var(--ion);background:#eef7ff}
+.duel-move.k-guard.on{border-color:var(--ion);background:#eef7ff}
+.duel-move.k-aoe.on{border-color:var(--ember);background:#fff3ec}
+.duel-move.k-skill.on{border-color:var(--gold);background:#fff9e6}
+.duel-move.locked{opacity:.45;cursor:not-allowed}
 .duel-move.swap.on{border-color:var(--grape);background:#f4efff}
 .duel-act .cta,.duel-exp .cta{width:100%}
+.duel-step h5 small{font-weight:400;margin-left:4px}
+#duel-sp-now{font-family:var(--hud);color:var(--ion);font-weight:800;margin-left:4px}
+.duel-sps{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:6px}
+.duel-sp{
+  display:grid;grid-template-columns:1fr auto;gap:0 6px;text-align:left;cursor:pointer;
+  border:2px solid var(--line-2);background:#fff;border-radius:11px;padding:5px 8px;color:var(--ink);font-size:12.5px;line-height:1.35;
+}
+.duel-sp b{font-size:13px}
+.duel-sp em{font-style:normal;font-family:var(--hud);font-size:11.5px;color:var(--ion);font-weight:800}
+.duel-sp span{grid-column:1/-1;font-size:11px;color:var(--dim);display:none}
+.duel-sp.on span{display:block}
+#duel-sp-desc{margin:4px 0 0;font-size:11.5px;color:var(--dim)}
+.duel-sp.on{border-color:var(--ion);background:#eaf5ff;box-shadow:0 0 0 2px #cfe8ff}
+.duel-sp.used{text-decoration:line-through}
+.duel-sp:disabled{opacity:.42;cursor:not-allowed}
+.duel-ab{
+  display:block;width:100%;text-align:left;border:2.5px dashed var(--line-2);background:#fafafa;border-radius:12px;
+  padding:7px 10px;color:var(--dim);font-size:12.5px;line-height:1.4;cursor:not-allowed;
+}
+.duel-ab b{display:block;font-size:14px}
+.duel-ab small{font-weight:400;font-size:12px;margin-left:4px}
+.duel-ab.ready{cursor:pointer;border-style:solid;border-color:var(--gold);background:#fffbe9;color:var(--ink);animation:duelAbGlow 1.4s ease-in-out infinite}
+.duel-ab.ready b{color:#b07800}
+.duel-ab.on{background:linear-gradient(90deg,#ffe9a6,#ffd2e6);border-color:var(--ember);animation:none}
+@keyframes duelAbGlow{50%{box-shadow:0 0 0 4px #ffe7a3}}
+.duel-skip{display:block;width:100%;margin-top:6px;background:none;border:0;color:var(--dim);font-size:13px;text-decoration:underline;cursor:pointer}
+.duel-fc .dst{display:flex;flex-wrap:wrap;gap:2px;margin-top:2px}
+.duel-fc .dst em{font-style:normal;font-size:9.5px;line-height:1.25;padding:0 4px;border-radius:6px;color:#fff;background:var(--c,var(--dim))}
+.duel-star{position:absolute;left:4px;top:2px;font-style:normal;font-size:15px;color:#cfc6b3;text-shadow:0 1px 0 #fff}
+.duel-star.ready{color:var(--gold);animation:duelStar 1s ease-in-out infinite}
+.duel-star.used{opacity:.3}
+@keyframes duelStar{50%{transform:scale(1.35)}}
+.duel-fc.heal{animation:duelHeal .5s ease}
+@keyframes duelHeal{50%{box-shadow:0 0 0 4px #b8f0d6}}
 .duel-bench button,.duel-step .bn{
   margin:0 6px 6px 0;border:2px solid var(--line-2);background:#fff;border-radius:10px;padding:5px 9px;cursor:pointer;font-size:12.5px;color:var(--ink)
 }
@@ -233,6 +273,7 @@
   .duel-q .cta,.duel-act .cta,.duel-exp .cta{min-height:44px;padding:10px 18px}
   .duel-ticker{max-height:70px}
   .duel-slots{grid-template-columns:repeat(8,1fr)}
+  .duel-fc .dst em{font-size:8.5px}
 }
 /* 窄畫面（直向手機）：對手在上、我方在下，中間是題目 */
 @media(max-width:760px) and (orientation:portrait){

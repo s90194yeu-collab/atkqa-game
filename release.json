@@ -1,11 +1,11 @@
 {
- "release": "r20261116-973b2d04",
+ "release": "r20261116-f0a5f8b9",
  "site": "https://s90194yeu-collab.github.io/atkqa-game/",
  "pages": {
   "game": {
    "file": "pages/game.html",
-   "sha256": "e6716f20bff8511f986cee4e998e03dfd4502102c11ef58fc7a3c71040146dfa",
-   "bytes": 40494,
+   "sha256": "885283bbd2384b5497315cca821e2717b7f15278385c56ab7889f12d4ca43b31",
+   "bytes": 40917,
    "css": 11,
    "js": 29
   },
@@ -35,7 +35,7 @@
  },
  "duel": {
   "file": "assets/duel/chars.json",
-  "sha256": "bbf6045a7585b962a2a2e560460191d21447136e26ebc1cba27e4e80a7040c43",
-  "bytes": 49503
+  "sha256": "05b5288760f50d517f83132430f084b8a253d617f505a5178117a216fc6d9ac9",
+  "bytes": 60203
  }
 }

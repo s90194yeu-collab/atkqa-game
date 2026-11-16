@@ -38,6 +38,15 @@
 .duel-live b{font-family:var(--hud);font-size:18px;color:var(--sakura-dd)}
 .duel-closed{background:#fff6e0;border:2px solid #f6d58a;border-radius:12px;padding:10px;color:#8a5a00;font-weight:700;margin:0 0 10px}
 .duel-actions{display:grid;gap:8px}
+.duel-lessons{margin:0 0 12px}
+.duel-lessons h5{margin:0 0 6px;font-size:12.5px;color:var(--dim)}
+#duel-lessons{display:flex;flex-wrap:wrap;gap:6px}
+#duel-lessons button{
+  padding:7px 12px;border-radius:99px;border:2px solid var(--line-2);background:#fff;color:var(--ink-2);
+  font-size:13.5px;font-weight:700;cursor:pointer;
+}
+#duel-lessons button.on{background:var(--sakura);border-color:var(--sakura-d);color:#fff}
+#duel-lessons button small{font-weight:400;opacity:.85;margin-left:4px}
 .duel-actions .cta,.duel-actions .ghostbtn{width:100%;margin:0}
 .duel-join{display:flex;gap:8px}
 .duel-join input{

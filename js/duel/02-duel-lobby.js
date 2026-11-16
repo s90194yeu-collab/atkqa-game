@@ -49,7 +49,7 @@ async function duelOpen(){
     await Promise.all([duelLoadSdk(), duelLoadChars()]);
     await duelConnect(info.token);
     DU.info = info; DU.uid = info.uid;
-    $('duel-lesson').textContent = info.config.lessonName || '';
+    $('duel-lesson').textContent = '';
     if(info.match) duelEnterMatch(info.match);
     else duelLobby();
   }catch(e){
@@ -71,35 +71,66 @@ function duelLobby(){
   $('duel-record').textContent = i.wins + ' 勝 ' + i.losses + ' 敗 ' + i.draws + ' 和（共 ' + i.games + ' 場）';
   $('duel-today').textContent = '今天已計分 ' + i.todayCounted + ' / ' + i.dailyMax + ' 場';
   $('duel-lobby-err').hidden = true;
+  if(!DU.choice){ try{ DU.choice = localStorage.getItem('atkqa_duel_choice') || DUEL_ANY; }catch(e){ DU.choice = DUEL_ANY; } }
   dsub('config', function(c){
     c = c || {};
     DU.info.config = c;
-    $('duel-lesson').textContent = c.lessonName || '';
-    const open = !!(c.open && c.lessonId && (!c.closeAt || dnow() < c.closeAt));
+    const lessons = duelArr(c.lessons);
+    const open = !!(c.open && lessons.length && (!c.closeAt || dnow() < c.closeAt));
     $('duel-closed').hidden = open;
     $('duel-actions').hidden = !open;
-    duelLobbyCounts(c.lessonId);
+    $('duel-lessons-box').hidden = !open;
+    if(DU.choice !== DUEL_ANY && !lessons.some(function(L){ return L.id === DU.choice; })) DU.choice = DUEL_ANY;
+    duelPaintLessons();
+  }, 'lobby');
+  dsub('queue', function(q){ DU.queueAll = q || {}; duelPaintCounts(); }, 'lobby');
+  dsub('stats', function(st){
+    let n = 0; st = st || {};
+    Object.keys(st).forEach(function(k){ n += Math.max(0, Number(st[k] && st[k].active) || 0); });
+    $('duel-active').textContent = n;
   }, 'lobby');
 }
-function duelLobbyCounts(lesson){
-  if(DU.countsFor === lesson) return;
-  if(DU.countsOff) DU.countsOff.forEach(function(f){ f(); });
-  DU.countsFor = lesson; DU.countsOff = [];
-  if(!lesson) return;
-  DU.countsOff.push(dsub('queue/' + lesson, function(q){
-    const n = q ? Object.keys(q).length : 0;
-    $('duel-waiting').textContent = n; $('duel-waiting2').textContent = n;
-  }, 'lobby'));
-  DU.countsOff.push(dsub('stats/' + lesson + '/active', function(n){ $('duel-active').textContent = Math.max(0, Number(n) || 0); }, 'lobby'));
+const DUEL_ANY = '_any';
+function duelChoiceName(id){
+  if(id === DUEL_ANY) return '不限課次';
+  const L = duelArr(DU.info.config && DU.info.config.lessons).filter(function(x){ return x.id === id; })[0];
+  return L ? L.name : id;
+}
+function duelPaintLessons(){
+  const box = $('duel-lessons'); box.innerHTML = '';
+  const lessons = duelArr(DU.info.config && DU.info.config.lessons);
+  [{ id: DUEL_ANY, name: '不限課次' }].concat(lessons).forEach(function(L){
+    const b = document.createElement('button');
+    b.className = DU.choice === L.id ? 'on' : '';
+    b.innerHTML = duelEsc(L.name) + (L.id === DUEL_ANY ? '<small>最快配到人</small>' : '');
+    b.onclick = function(){
+      DU.choice = L.id; sfx('tap');
+      try{ localStorage.setItem('atkqa_duel_choice', L.id); }catch(e){}
+      duelPaintLessons();
+    };
+    box.appendChild(b);
+  });
+  $('duel-lesson').textContent = duelChoiceName(DU.choice);
+  duelPaintCounts();
+}
+/* 可配對的人：選某一課＝那一課＋不限課次；選不限課次＝所有人 */
+function duelPaintCounts(){
+  const q = DU.queueAll || {}, ch = DU.choice || DUEL_ANY;
+  const allowed = (DU.info.config && DU.info.config.allowed) || {};
+  let n = 0;
+  Object.keys(q).forEach(function(k){
+    if(ch === DUEL_ANY ? (k === DUEL_ANY || allowed[k]) : (k === ch || k === DUEL_ANY)) n += Object.keys(q[k] || {}).length;
+  });
+  $('duel-waiting').textContent = n; $('duel-waiting2').textContent = n;
 }
 function duelLobbyErr(msg){ const e = $('duel-lobby-err'); e.textContent = msg; e.hidden = false; }
 
 /* ── 隨機配對 ── */
 function duelStartRandom(){
-  const lesson = DU.info.config && DU.info.config.lessonId;
-  if(!lesson) return duelLobbyErr('老師還沒指定對戰課次。');
+  const lesson = DU.choice || DUEL_ANY;
   sfx('select');
   duelView('wait');
+  $('duel-wait-lesson').textContent = '課次：' + duelChoiceName(lesson);
   DU.waitStart = Date.now();
   const entry = dref('queue/' + lesson + '/' + DU.uid);
   DU.waitRef = entry;
@@ -115,7 +146,7 @@ function duelStartRandom(){
   const ask = async function(){
     if(DU.view !== 'wait') return;
     try{
-      const r = await duelGas('duelQueue');
+      const r = await duelGas('duelQueue', lesson);
       if(DU.view !== 'wait') return;
       if(r.status === 'matched') return duelEnterMatch(r.mid);
       if(r.status === 'closed'){ duelLobby(); return duelLobbyErr('對戰時段已經結束。'); }
@@ -139,11 +170,12 @@ async function duelHost(){
   sfx('select');
   duelMsg('開房中⋯⋯');
   try{
-    const r = await duelGas('duelCreateRoom');
+    const r = await duelGas('duelCreateRoom', DU.choice || DUEL_ANY);
     if(r.match) return duelEnterMatch(r.match);
     if(!r.ok){ duelLobby(); return duelLobbyErr(r.msg); }
     duelView('room');
     $('duel-code').textContent = r.code;
+    $('duel-room-lesson').textContent = '課次：' + (r.lessonName || '');
     const exp = r.exp;
     const paint = function(){
       const left = Math.max(0, exp - dnow());
@@ -196,6 +228,7 @@ function duelEnterMatch(mid){
 }
 
 function duelRoute(p, privOnly){
+  if(p.lesson && p.lesson.name) $('duel-lesson').textContent = p.lesson.name;
   if(p.phase === 'init'){ duelMsg('配對成功！準備開戰⋯⋯'); return; }
   if(p.phase === 'team'){ if(!privOnly || DU.view !== 'team') duelTeamView(p); return; }
   if(p.phase === 'end' || p.phase === 'void'){ duelResult(p); return; }

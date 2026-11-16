@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/08-codex.css?v=14559d8d93">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/09-landscape.css?v=c74f881f2b">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/10-growth.css?v=fc785dc697">
-<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/11-duel.css?v=422c6baf31">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/11-duel.css?v=a9771be8a2">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/demo.css?v=73075f2384">
 </head>
 <body>
@@ -618,8 +618,12 @@
         </div>
       </div>
       <div class="duel-card">
-        <p class="duel-live"><span>本課等待配對中 <b id="duel-waiting">0</b> 人</span><span>對戰中 <b id="duel-active">0</b> 場</span></p>
+        <p class="duel-live"><span>可配對的人 <b id="duel-waiting">0</b> 人</span><span>全校對戰中 <b id="duel-active">0</b> 場</span></p>
         <p class="duel-closed" id="duel-closed" hidden>目前不是對戰時段，請等老師開放。</p>
+        <div class="duel-lessons" id="duel-lessons-box">
+          <h5>選擇課次</h5>
+          <div id="duel-lessons"></div>
+        </div>
         <div class="duel-actions" id="duel-actions">
           <button class="cta" id="duel-random">隨機配對</button>
           <button class="ghostbtn" id="duel-host">開房（產生房號）</button>
@@ -645,7 +649,8 @@
       <div class="duel-card duel-center">
         <div class="duel-spin"></div>
         <p class="duel-msg">尋找對手中⋯⋯ <b id="duel-wait-sec">0</b> 秒</p>
-        <p class="duel-sub">本課等待配對中 <b id="duel-waiting2">0</b> 人</p>
+        <p class="duel-sub" id="duel-wait-lesson"></p>
+        <p class="duel-sub">可配對的人 <b id="duel-waiting2">0</b> 人</p>
         <p class="duel-sub" id="duel-wait-hint" hidden>目前人比較少，也可以開房、把房號告訴同學。</p>
         <button class="ghostbtn" id="duel-cancel">取消配對</button>
       </div>
@@ -654,6 +659,7 @@
     <section class="duel-view" data-view="room">
       <div class="duel-card duel-center">
         <p class="duel-sub">把房號告訴同學，對方輸入後就會開戰</p>
+        <p class="duel-sub" id="duel-room-lesson"></p>
         <div class="duel-code" id="duel-code">----</div>
         <p class="duel-sub">房號有效時間還剩 <b id="duel-room-left">5:00</b></p>
         <button class="ghostbtn" id="duel-room-cancel">取消房間</button>

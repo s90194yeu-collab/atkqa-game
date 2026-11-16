@@ -17,7 +17,7 @@
       "$lesson": {
         ".read": "auth != null",
         "$uid": {
-          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (root.child('config/open').val() === true && root.child('config/lessonId').val() === $lesson))",
+          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (root.child('config/open').val() === true && ($lesson === '_any' || root.child('config/allowed').child($lesson).val() === true)))",
           ".validate": "newData.hasChildren(['sid', 't0', 't'])",
           "sid": {
             ".validate": "newData.isString() && newData.val().length <= 64"
@@ -32,7 +32,8 @@
             ".validate": false
           }
         }
-      }
+      },
+      ".read": "auth != null"
     },
     "matches": {
       "$mid": {

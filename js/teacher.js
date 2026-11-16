@@ -418,37 +418,42 @@ function drawDuel(){
   loading();
   duelRun('duelTeacherState', [], function(d){
     const c = d.config || {}, q = d.qCount || 15;
+    const on = (c.lessons || []).map(function(L){ return L.id; });
     let h = '<div class="panel"><h3>對戰設定<span>學生在遊戲首頁按「⚔️ 雙人對戰」進入</span></h3>';
     h += '<div class="cards">'
        + kpi('目前狀態', d.open ? '開放中' : '關閉', d.open && c.closeAt ? '到 ' + new Date(c.closeAt).toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'}) + ' 自動關閉' : (d.open ? '直到手動關閉' : '學生只能看大廳'))
-       + kpi('對戰課次', esc(c.lessonName || '尚未指定'), '每場 ' + q + ' 題')
+       + kpi('開放課次', on.length ? on.length + ' 課' : '尚未指定', on.length ? esc((c.lessons || []).map(function(L){ return L.name; }).join('、')) : '每場 ' + q + ' 題')
        + kpi('等待配對', (d.live && d.live.waiting) || 0, '人')
        + kpi('對戰中', (d.live && d.live.matches ? d.live.matches.length : 0), '場')
        + '</div>';
     h += '<div class="bar" style="flex-wrap:wrap;gap:8px">'
-       + '<label>課次</label><select id="duel-t-lesson">'
-       + (d.lessons || []).map(function(L){
-           const ok = L.count >= q;
-           return '<option value="' + esc(L.id) + '"' + (L.id === c.lessonId ? ' selected' : '') + (ok ? '' : ' disabled') + '>'
-             + esc(L.name) + '（' + L.count + ' 題' + (ok ? '' : '，不足 ' + q + ' 題') + '）</option>';
-         }).join('') + '</select>'
        + '<label>開放</label><select id="duel-t-min"><option value="0">直到手動關閉</option><option value="40">40 分鐘</option>'
        + '<option value="50" selected>50 分鐘</option><option value="90">90 分鐘</option><option value="1440">今天整天</option></select>'
        + '<button class="btn" id="duel-t-open">開放對戰</button>'
        + '<button class="btn ghost" id="duel-t-close"' + (d.open ? '' : ' disabled') + '>關閉對戰</button>'
        + '<button class="btn ghost" id="duel-t-refresh">重新整理</button></div>'
+       + '<h4 style="margin:14px 0 6px">開放哪些課次<span class="qstem">（學生可自選其中一課，或選「不限課次」與任何人配對；題目不足 ' + q + ' 題的課次不能勾）</span></h4>'
+       + '<div class="bar" style="flex-wrap:wrap;gap:6px 16px" id="duel-t-lessons">'
+       + (d.lessons || []).map(function(L){
+           const ok = L.count >= q;
+           return '<label style="display:inline-flex;align-items:center;gap:6px;font-weight:600' + (ok ? '' : ';opacity:.45') + '">'
+             + '<input type="checkbox" value="' + esc(L.id) + '"' + (on.indexOf(L.id) >= 0 ? ' checked' : '') + (ok ? '' : ' disabled') + '>'
+             + esc(L.name) + '<span class="qstem">（' + L.count + ' 題）</span></label>';
+         }).join('')
+       + '</div><div class="bar" style="gap:8px"><button class="btn ghost" id="duel-t-all">全選</button>'
+       + '<button class="btn ghost" id="duel-t-none">全不選</button></div>'
        + '<p class="empty warn" id="duel-t-err" hidden></p>'
-       + '<p class="qstem">關閉後，進行中的對戰可以打完，但不能再開新的一場。規則數字（題數、秒數、計分）可在試算表「對戰設定」工作表調整。</p></div>';
+       + '<p class="qstem">「開放對戰」也用來更新課次與時間：改好勾選後再按一次即可。關閉後，進行中的對戰可以打完，但不能再開新的一場。規則數字（題數、秒數、計分）可在試算表「對戰設定」工作表調整。</p></div>';
 
     const live = (d.live && d.live.matches) || [];
     h += '<div class="panel"><h3>進行中的對戰<span>' + live.length + ' 場</span></h3>';
     if(d.live && d.live.error) h += '<p class="empty warn">' + esc(d.live.error) + '</p>';
     if(!live.length) h += '<p class="empty">目前沒有進行中的對戰。</p>';
     else{
-      h += '<div class="scroll"><table class="tbl"><tr><th>玩家 1</th><th>玩家 2</th><th>進度</th><th class="num">剩餘體力</th></tr>';
+      h += '<div class="scroll"><table class="tbl"><tr><th>課次</th><th>玩家 1</th><th>玩家 2</th><th>進度</th><th class="num">剩餘體力</th></tr>';
       live.forEach(function(m){
         const ph = {team:'組隊中', answer:'作答', action:'選招', show:'演出'}[m.phase] || m.phase;
-        h += '<tr><td><b>' + esc(m.p1) + '</b></td><td><b>' + esc(m.p2) + '</b></td><td>第 ' + (m.q || 0) + ' 題・' + ph + '</td>'
+        h += '<tr><td style="font-size:.8rem">' + esc(m.lesson || '') + '</td><td><b>' + esc(m.p1) + '</b></td><td><b>' + esc(m.p2) + '</b></td><td>第 ' + (m.q || 0) + ' 題・' + ph + '</td>'
            + '<td class="num">' + m.hp1 + '% ： ' + m.hp2 + '%</td></tr>';
       });
       h += '</table></div>';
@@ -462,10 +467,14 @@ function drawDuel(){
 
     $('duel-t-open').onclick = function(){
       this.disabled = true;
-      duelRun('duelTeacherSet', [{ open: true, lessonId: $('duel-t-lesson').value, minutes: Number($('duel-t-min').value) }], drawDuel);
+      const ids = Array.from(document.querySelectorAll('#duel-t-lessons input:checked')).map(function(x){ return x.value; });
+      if(!ids.length){ const b = $('duel-t-err'); b.textContent = '請至少勾選一個課次。'; b.hidden = false; this.disabled = false; return; }
+      duelRun('duelTeacherSet', [{ open: true, lessonIds: ids, minutes: Number($('duel-t-min').value) }], drawDuel);
     };
     $('duel-t-close').onclick = function(){ this.disabled = true; duelRun('duelTeacherSet', [{ open: false }], drawDuel); };
     $('duel-t-refresh').onclick = drawDuel;
+    $('duel-t-all').onclick = function(){ document.querySelectorAll('#duel-t-lessons input:not(:disabled)').forEach(function(x){ x.checked = true; }); };
+    $('duel-t-none').onclick = function(){ document.querySelectorAll('#duel-t-lessons input').forEach(function(x){ x.checked = false; }); };
     $('duel-t-log').onclick = function(){ DUEL_DAY = $('duel-t-day').value; drawDuelLog(); };
     drawDuelLog();
   });

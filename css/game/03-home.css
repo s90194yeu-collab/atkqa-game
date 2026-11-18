@@ -155,3 +155,26 @@
 }
 #btn-resume{background:var(--lemon);border-color:#f0b400;box-shadow:0 3px 0 #d79a00;color:var(--ink)}
 #btn-resume:disabled{opacity:.45}
+
+/* ── 首頁面板摺疊（24b-home-fold.js） ── */
+.lesson-box.foldable > h3{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.lesson-box.foldable > h3::after{
+  content:"▾";flex:none;margin-left:-4px;font-size:14px;color:var(--dim);transition:transform .2s;
+}
+.lesson-box.foldable.folded > h3::after{transform:rotate(-90deg)}
+.lesson-box.foldable > h3 > span:last-child:not(:first-child){margin-left:auto}
+.lesson-box.folded{padding-bottom:12px}
+.lesson-box.folded > h3{margin-bottom:0}
+.lesson-box.folded > :not(h3){display:none}
+/* 學期積分收起時仍顯示稱號與總分 */
+.lesson-box.sem.folded > h3{margin-bottom:10px}
+.lesson-box.sem.folded > .sem-head{display:flex}
+.lesson-box.sem.folded #sem-total-lab{display:none}
+
+details.copyright > summary{cursor:pointer;list-style:none}
+details.copyright > summary::-webkit-details-marker{display:none}
+details.copyright > summary i{
+  font-style:normal;margin-left:6px;color:var(--ion);white-space:nowrap;
+}
+details.copyright > summary i::after{content:" ▸"}
+details.copyright[open] > summary i::after{content:" ▾"}

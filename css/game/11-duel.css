@@ -284,3 +284,32 @@
   .duel-fc img{width:100%;height:64px}
   .duel-hud{grid-template-columns:1fr 1.2fr 1fr;gap:6px}
 }
+
+/* ── 主要出手角色放大（比照單人困難模式的大立繪） ── */
+.duel-fc.lead{
+  order:-1;grid-template-columns:1fr;gap:6px;padding:8px 10px 10px;text-align:center;
+  border-color:var(--line-2);
+}
+.duel-fc.lead img{
+  width:100%;height:auto;aspect-ratio:4/5;max-height:clamp(150px,34vh,250px);
+  object-fit:contain;padding:6px;border-radius:14px;
+  filter:drop-shadow(0 8px 10px rgba(59,51,102,.28));
+}
+.duel-col.me .duel-fc.lead img{background:radial-gradient(circle at 50% 34%,#fff 0 18%,transparent 60%),linear-gradient(180deg,#eef4ff,#cfe0ff)}
+.duel-col.op .duel-fc.lead img{background:radial-gradient(circle at 50% 34%,#fff 0 18%,transparent 60%),linear-gradient(180deg,#fff0f3,#ffd3dc);transform:scaleX(-1)}
+.duel-fc.lead b{font-family:var(--display);font-size:16px}
+.duel-fc.lead .dhp{height:12px}
+.duel-fc.lead .dhpn{font-size:13px}
+.duel-fc.lead .dst{justify-content:center}
+.duel-fc.lead .duel-pop{top:30%}
+@media(max-height:520px) and (orientation:landscape){
+  .duel-fc.lead{grid-template-columns:1fr;padding:5px 6px 6px}
+  .duel-fc.lead img{width:100%;height:auto;max-height:clamp(90px,36vh,150px);border-radius:10px}
+  .duel-fc.lead b{font-size:13px}
+}
+@media(max-width:760px) and (orientation:portrait){
+  .duel-col{grid-template-columns:1.7fr 1fr 1fr;align-items:end}
+  .duel-fc.lead img{width:100%;height:auto;max-height:118px}
+  .duel-fc.lead{padding:5px}
+  .duel-fc.lead b{font-size:13.5px}
+}

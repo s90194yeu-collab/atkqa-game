@@ -49,6 +49,7 @@ async function duelOpen(){
     await Promise.all([duelLoadSdk(), duelLoadChars()]);
     await duelConnect(info.token);
     DU.info = info; DU.uid = info.uid;
+    duelPaintRules(info.rules);
     $('duel-lesson').textContent = '';
     if(info.match) duelEnterMatch(info.match);
     else duelLobby();
@@ -56,6 +57,16 @@ async function duelOpen(){
     console.error('[duel]', e);
     duelMsg('無法進入雙人對戰：' + (e.message || e), true);
   }
+}
+
+/* 規則說明的數字跟著「對戰設定」工作表走（讀不到時用預設：50 秒、10 秒、10 題） */
+function duelPaintRules(r){
+  r = r || {};
+  const sec = function(ms, d){ const n = Number(ms); return (n > 0 ? Math.round(n / 1000) : d) + ' 秒'; };
+  const q = Number(r.qCount || r.questions || r.q) || 10;
+  if($('duel-rule-ans')) $('duel-rule-ans').textContent = sec(r.answer, 50);
+  if($('duel-rule-act')) $('duel-rule-act').textContent = sec(r.action, 10);
+  if($('duel-rule-q')) $('duel-rule-q').textContent = q;
 }
 
 /* ── 大廳 ── */
@@ -207,7 +218,7 @@ function duelEnterMatch(mid){
   DU.countsFor = null;
   DU.mid = mid; DU.pub = null; DU.priv = null; DU.side = null; DU.lastStep = -1; DU.retries = 0; DU.fails = 0;
   DU.flags = { sub: {}, acted: {}, ready: {} };
-  DU.played = {}; DU.shown = null; DU.teamSent = false; DU.team = [];
+  DU.played = {}; DU.shown = null; DU.teamSent = false; DU.team = []; DU.lead = {};
   $('duel-ticker').innerHTML = '';
   duelMsg('配對成功！準備開戰⋯⋯');
   sfx('awaken');
@@ -360,7 +371,7 @@ function duelResult(p){
     else if(r.winner === me){ t.textContent = '勝利！'; sfx('win'); }
     else if(r.winner === 'draw'){ t.textContent = '平手'; }
     else { t.textContent = '落敗⋯⋯'; t.classList.add('lose'); sfx('lose'); }
-    const why = { wipe: '一方全隊倒下', time: (p.qCount || 15) + ' 題結束，比較全隊剩餘體力', dc: '一方斷線超過 60 秒', forfeit: '一方投降' };
+    const why = { wipe: '一方全隊倒下', time: (p.qCount || 10) + ' 題結束，比較全隊剩餘體力', dc: '一方斷線超過 60 秒', forfeit: '一方投降' };
     let reason = why[r.reason] || (p.reason || '');
     if(r.dcDraw) reason += (r.dcDraw === me ? '（你今天第一次斷線，判和局、不扣段分）' : '（對方今天第一次斷線，判和局）');
     $('duel-r-reason').textContent = reason;

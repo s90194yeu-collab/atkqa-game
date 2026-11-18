@@ -17,7 +17,7 @@ function duelBattle(p){
   const me = duelMe(), op = duelOp();
   $('duel-h-me').textContent = (p.players[me].sid || '我');
   $('duel-h-op').textContent = (p.players[op].sid || '對手');
-  $('duel-h-q').textContent = '第 ' + (p.q || 1) + ' / ' + (p.qCount || 15) + ' 題';
+  $('duel-h-q').textContent = '第 ' + (p.q || 1) + ' / ' + (p.qCount || 10) + ' 題';
 
   /* 演出：還沒播過這一題的腳本就播放；播放中不重畫角色卡 */
   if(p.phase === 'show' && p.script && !DU.played[p.q] && !DU.playing){
@@ -37,8 +37,8 @@ function duelBattle(p){
 
   const phaseTxt = { answer: '作答中', action: '選擇招式', show: DU.playing ? '交戰中' : '看解析' };
   $('duel-h-phase').textContent = phaseTxt[p.phase] || '';
-  const totals = { answer: (DU.info.rules && DU.info.rules.answer) || 25000, action: (DU.info.rules && DU.info.rules.action) || 10000, show: 5000 };
-  duelTimer('duel-b-bar', 'duel-b-left', p.deadline, totals[p.phase] || 25000);
+  const totals = { answer: (DU.info.rules && DU.info.rules.answer) || 50000, action: (DU.info.rules && DU.info.rules.action) || 10000, show: 5000 };
+  duelTimer('duel-b-bar', 'duel-b-left', p.deadline, totals[p.phase] || 50000);
 
   $('duel-q').hidden = false;
   $('duel-q').classList.toggle('acting', p.phase === 'action');
@@ -72,6 +72,30 @@ function duelRenderSides(){
   $('duel-h-mebench').textContent = sideTxt(s[duelMe()]);
   $('duel-h-opbench').textContent = sideTxt(s[duelOp()]);
   duelMarkCards();
+}
+/* 主要出手角色放大（比照單人困難模式的大立繪）：
+   選招時＝我選的出手者／目標；演出時＝正在出手與被攻擊的角色；其餘時候沿用上一次，倒下就換體力最高的 */
+function duelSetLead(k, slot){
+  DU.lead = DU.lead || {};
+  if(slot === undefined || slot === null || DU.lead[k] === slot) return;
+  DU.lead[k] = slot; duelApplyLead();
+}
+function duelApplyLead(){
+  DU.lead = DU.lead || {};
+  ['me', 'op'].forEach(function(k){
+    const side = k === 'me' ? duelMe() : duelOp();
+    const field = duelArr(DU.vsides && DU.vsides[side] && DU.vsides[side].field);
+    let lead = DU.lead[k];
+    const alive = function(i){ return field[i] && field[i].hp > 0; };
+    if(lead === undefined || !field[lead] || (!alive(lead) && !DU.playing)){
+      lead = 0; let best = -1;
+      field.forEach(function(f, i){ if(f && f.hp > 0 && f.hp > best){ best = f.hp; lead = i; } });
+      DU.lead[k] = lead;
+    }
+    document.querySelectorAll('#duel-col-' + k + ' .duel-fc').forEach(function(el){
+      el.classList.toggle('lead', Number(el.dataset.slot) === lead);
+    });
+  });
 }
 function duelCard(f, k, slot){
   const d = document.createElement('div');
@@ -389,6 +413,8 @@ function duelPaintActDetail(){
 function duelMarkCards(){
   const p = DU.pub, a = DU.act;
   const choosing = p && p.phase === 'action' && a && a.q === p.q && !((DU.flags.acted[p.q] || {})[DU.uid]) && !DU.playing;
+  if(choosing){ DU.lead = DU.lead || {}; DU.lead.me = a.who; if(!a.zero) DU.lead.op = a.target; }
+  duelApplyLead();
   document.querySelectorAll('#scr-duel .duel-fc').forEach(function(el){
     el.classList.remove('pickable', 'sel', 'tgt');
     if(!choosing || el.classList.contains('down') || el.classList.contains('empty')) return;
@@ -474,6 +500,10 @@ function duelPlay(p){
     if(i >= ev.length){ return finish(); }
     const e = ev[i++], k = duelSideKey(e.s), who = sideName(e.s) + '・' + duelName(e.s, e.slot);
     let wait = 850;
+    if(['atk', 'sp', 'ab', 'skill', 'aoe', 'guard', 'counter'].indexOf(e.e) >= 0 && !e.sup){
+      if(!(e.e === 'atk' && e.aoe)) duelSetLead(k, e.slot);
+      if((e.e === 'atk' && !e.aoe) || (e.e === 'ab' && e.ts)) duelSetLead(duelSideKey(e.ts), e.tslot);
+    }
     if(e.e === 'swap'){
       const side = DU.vsides[e.s], fld = duelArr(side.field);
       fld[e.slot] = e.f; side.field = fld;
@@ -617,7 +647,7 @@ function duelPaintExplain(p){
   const opReady = !!((DU.flags.ready[n] || {})[p.players[duelOp()].uid]);
   const nb = $('duel-next');
   nb.disabled = ready;
-  nb.textContent = Number(n) >= Number(p.qCount || 15) ? '看結算' : '下一題';
+  nb.textContent = Number(n) >= Number(p.qCount || 10) ? '看結算' : '下一題';
   $('duel-next-status').textContent = ready ? (opReady ? '雙方都準備好了！' : '等待對手⋯⋯') : (opReady ? '對手已經準備好了' : '');
 }
 function duelSendReady(){

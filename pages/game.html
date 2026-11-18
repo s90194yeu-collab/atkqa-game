@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Huninn&family=Fredoka:wght@500;600;700&family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/01-base.css?v=729e30dd4d">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/02-components.css?v=d0d367167f">
-<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/03-home.css?v=22de588125">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/03-home.css?v=24b8c892f7">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/04-select.css?v=10a62f6cdf">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/05-battle.css?v=0d8f23bda2">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/06-overlays.css?v=7fb5b4fd83">
@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/08-codex.css?v=14559d8d93">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/09-landscape.css?v=c74f881f2b">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/10-growth.css?v=fc785dc697">
-<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/11-duel.css?v=e67369cb87">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/11-duel.css?v=2c61dd8849">
 </head>
 <body>
 
@@ -76,7 +76,7 @@
       <button class="cta" id="btn-login" style="width:100%;margin-top:10px">用學校帳號登入</button>
     </div>
 
-    <div class="lesson-box sem" id="sem-box" hidden>
+    <div class="lesson-box sem" id="sem-box" data-fold="sem" data-fold-default="1" hidden>
       <h3><span>學期積分</span><span id="sem-total-lab">學期總分</span></h3>
       <div class="sem-head">
         <div class="sem-badge">
@@ -96,7 +96,7 @@
       <button class="dangerbtn" id="btn-wipe">🗑️ 清除我的所有紀錄</button>
     </div>
 
-    <div class="lesson-box growth" id="growth-box" hidden>
+    <div class="lesson-box growth" id="growth-box" data-fold="growth" data-fold-default="1" hidden>
       <h3><span>我的成長</span><span id="growth-sum"></span></h3>
       <p class="opt-label">題型熟練度　<i class="ms-hint">出到這類題目時，每一級出招傷害 +3%</i></p>
       <div class="mastery-grid" id="mastery-grid"></div>
@@ -135,8 +135,8 @@
       <p class="raid-reward" id="raid-reward"></p>
     </div>
 
-    <div class="lesson-box games">
-      <h3><span>遊戲設定</span></h3>
+    <div class="lesson-box games" data-fold="games">
+      <h3><span>遊戲設定</span><span id="games-sum"></span></h3>
       <p class="opt-label">難度</p>
       <div class="opt-row" id="diff-row">
         <button class="optbtn on" data-diff="easy">
@@ -157,14 +157,14 @@
       </div>
     </div>
 
-    <p class="copyright">
-      本作品由<b>新北市私立南山高級中學　闕宏宇老師</b>設計製作，供校內國語文教學使用。<br>
+    <details class="copyright">
+      <summary>本作品由<b>新北市私立南山高級中學　闕宏宇老師</b>設計製作，供校內國語文教學使用。<i>著作權說明</i></summary>
       遊戲角色取材自神話、傳說、歷史人物與古典小說，經重新設計為本作品的原創角色；
       角色設定、立繪、動畫與程式皆為本作品自行製作。<br>
       題目改寫自各出版社教材，原文著作權仍屬原權利人所有。<br>
       未經作者同意，<b>請勿</b>將本作品或其內容用於商業用途、對外散布、重新發行或收費服務。
       如對內容有任何疑慮，請來信告知，將儘速處理。
-    </p>
+    </details>
 
     <div class="home-actions">
       <button class="cta" id="btn-goto-select">選擇角色，開始挑戰</button>
@@ -637,8 +637,8 @@
         <h4>怎麼打</h4>
         <ul>
           <li>帶 <b>8</b> 位角色上陣，場上同時 <b>3</b> 位；倒下就由替補上場。</li>
-          <li>每題 <b>25 秒</b>作答、<b>10 秒</b>選招：答對率就是這一擊的威力。</li>
-          <li>先讓對方全部倒下就獲勝；15 題打完則比全隊剩餘體力。</li>
+          <li>每題 <b id="duel-rule-ans">50 秒</b>作答、<b id="duel-rule-act">10 秒</b>選招：答對率就是這一擊的威力。</li>
+          <li>先讓對方全部倒下就獲勝；<span id="duel-rule-q">10</span> 題打完則比全隊剩餘體力。</li>
           <li>答得又對又快的一方先出手。對戰積分會另列一項，加進學期積分。</li>
         </ul>
       </div>
@@ -690,8 +690,8 @@
       <div class="duel-hud">
         <div class="duel-hud-side me"><b id="duel-h-me">我</b><span><i id="duel-h-mehp"></i></span><small id="duel-h-mebench">替補 5</small></div>
         <div class="duel-hud-mid">
-          <b id="duel-h-q">第 1 / 15 題</b>
-          <div class="duel-timer"><i id="duel-b-bar"></i><span id="duel-b-left">25</span></div>
+          <b id="duel-h-q">第 1 / 10 題</b>
+          <div class="duel-timer"><i id="duel-b-bar"></i><span id="duel-b-left">50</span></div>
           <small id="duel-h-phase">作答中</small>
         </div>
         <div class="duel-hud-side op"><b id="duel-h-op">對手</b><span><i id="duel-h-ophp"></i></span><small id="duel-h-opbench">替補 5</small></div>
@@ -780,9 +780,10 @@
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/22-save.js?v=1444aaa1ed"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/23-growth.js?v=911c95ecfe"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/24-result.js?v=ec345ebd0f"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/24b-home-fold.js?v=ed0bccb729"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/25-start.js?v=33135afd2a"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/duel/01-duel-net.js?v=2e344e7ce6"></script>
-<script src="https://s90194yeu-collab.github.io/atkqa-game/js/duel/02-duel-lobby.js?v=544803defa"></script>
-<script src="https://s90194yeu-collab.github.io/atkqa-game/js/duel/03-duel-battle.js?v=f0867afd43"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/duel/02-duel-lobby.js?v=3c6943abd2"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/duel/03-duel-battle.js?v=8471a83524"></script>
 </body>
 </html>

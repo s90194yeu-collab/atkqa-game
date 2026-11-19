@@ -15,16 +15,45 @@ const DUEL_SDK = '13.1.0';
 const DU = {
   app: null, db: null, offset: 0, connected: false,
   info: null, uid: '', chars: null,
+  guest: null, guestChecked: false,
   mid: null, side: null, pub: null, priv: null,
   flags: { sub: {}, acted: {}, ready: {} },
   subs: [], matchSubs: [], timers: {}, retries: 0, lastStep: -1
 };
 
+const DUEL_GUEST_KEY = 'atkqa_guest_duel';
+function duelNormCode(v){
+  return String(v || '').replace(/[０-９]/g, function(ch){
+    return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0);
+  }).replace(/\D/g, '');
+}
+function duelGuestLoad(){
+  try{
+    const raw = localStorage.getItem(DUEL_GUEST_KEY);
+    if(!raw){ DU.guest = null; return null; }
+    const g = JSON.parse(raw);
+    DU.guest = (g && typeof g.token === 'string' && g.token) ? g : null;
+  }catch(e){ DU.guest = null; }
+  return DU.guest;
+}
+function duelGuestSave(g){
+  DU.guest = g || null;
+  try{
+    if(DU.guest) localStorage.setItem(DUEL_GUEST_KEY, JSON.stringify(DU.guest));
+    else localStorage.removeItem(DUEL_GUEST_KEY);
+  }catch(e){}
+}
+function duelGuestClear(){
+  DU.guest = null;
+  try{ localStorage.removeItem(DUEL_GUEST_KEY); }catch(e){}
+}
+function duelGuestTok(){ return (DU.guest && DU.guest.token) || ''; }
+
 /* google.script.run 包成 Promise */
 function duelGas(fn){
   const args = Array.prototype.slice.call(arguments, 1);
   return new Promise(function(resolve, reject){
-    if(!inGAS) return reject(new Error('雙人對戰只能在正式網址使用（需要學校帳號登入）。'));
+    if(!inGAS) return reject(new Error('雙人對戰只能在正式網址使用（需要學校帳號或友校訪客代碼登入）。'));
     const runner = google.script.run
       .withSuccessHandler(resolve)
       .withFailureHandler(function(e){ reject(e instanceof Error ? e : new Error((e && e.message) || String(e))); });
@@ -147,7 +176,7 @@ function duelNetMsg(e){
 async function duelDoTick(){
   if(!DU.mid) return;
   const step = DU.pub ? DU.pub.step : -1, mid = DU.mid;
-  try{ await duelGas('duelTick', mid); DU.fails = 0; }
+  try{ await duelGas('duelTick', mid, duelGuestTok()); DU.fails = 0; }
   catch(e){
     /* 兩邊都會請裁判推進，任一邊成功就好；這邊失敗但對戰已經往下走，就不必提示 */
     const moved = DU.mid !== mid || !DU.pub || DU.pub.step !== step;
@@ -170,3 +199,5 @@ async function duelDoTick(){
     DU.retries = 2; duelDoTick();
   }, 6000);
 }
+
+duelGuestLoad();

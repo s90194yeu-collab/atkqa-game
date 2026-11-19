@@ -337,12 +337,13 @@ function paintRaid(){
   const r = RAID[curLessonId()];
   if(!r || r.off){ box.hidden = true; return; }
   box.hidden = false;
-  $('raid-cls').textContent = r.cls === '未分班' ? '未分班' : (r.cls + ' 班');
   const boss = raidBossOf(curLessonId());
   if(boss) bindImg($('raid-img'), boss);
   $('raid-name').textContent = r.name;
   const left = Math.max(0, r.hp - r.dmg);
   const pct = r.hp ? clamp(left / r.hp * 100, 0, 100) : 0;
+  const clsTxt = r.cls === '未分班' ? '未分班' : (r.cls + ' 班');
+  $('raid-cls').textContent = clsTxt + '・' + (r.defeated ? '已討伐 🏆' : ('剩 ' + Math.round(pct) + '%'));
   $('raid-fill').style.width = pct + '%';
   $('raid-hp').textContent = r.defeated ? '討伐成功！' : (left.toLocaleString() + ' / ' + r.hp.toLocaleString());
   box.classList.toggle('down', !!r.defeated);

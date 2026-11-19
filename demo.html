@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Huninn&family=Fredoka:wght@500;600;700&family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/01-base.css?v=729e30dd4d">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/02-components.css?v=d0d367167f">
-<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/03-home.css?v=24b8c892f7">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/03-home.css?v=e0f376b208">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/04-select.css?v=10a62f6cdf">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/05-battle.css?v=0d8f23bda2">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/06-overlays.css?v=7fb5b4fd83">
@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/08-codex.css?v=14559d8d93">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/09-landscape.css?v=c74f881f2b">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/10-growth.css?v=fc785dc697">
-<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/11-duel.css?v=2c61dd8849">
+<link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/game/11-duel.css?v=3008c9c330">
 <link rel="stylesheet" href="https://s90194yeu-collab.github.io/atkqa-game/css/demo.css?v=73075f2384">
 </head>
 <body>
@@ -75,6 +75,23 @@
       <p id="login-note"></p>
       <div class="login-domains" id="login-domains"></div>
       <button class="cta" id="btn-login" style="width:100%;margin-top:10px">用學校帳號登入</button>
+      <div class="guest-box" id="guest-login-area" hidden>
+        <p class="guest-lab">友校參訪登入（雙人對戰專用）</p>
+        <div id="guest-form-home">
+          <div class="guest-row">
+            <input id="guest-code-home" inputmode="numeric" maxlength="4" placeholder="輸入 4 碼訪客代碼" autocomplete="off">
+            <button type="button" class="ghostbtn" id="btn-guest-home">友校登入</button>
+          </div>
+          <p class="guest-msg" id="guest-msg-home" hidden></p>
+        </div>
+        <div class="guest-active" id="guest-active-home" hidden>
+          <span id="guest-active-text"></span>
+          <div class="guest-active-btns">
+            <button type="button" class="ghostbtn duel-entry" id="btn-guest-home-duel">⚔️ 進入雙人對戰</button>
+            <button type="button" class="backbtn" id="btn-guest-home-logout">登出訪客</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="lesson-box sem" id="sem-box" data-fold="sem" data-fold-default="1" hidden>
@@ -110,10 +127,6 @@
       </div>
     </div>
 
-    <!-- 教師入口：刻意放在登入區之外，老師不必先用學生帳號登入也看得到。
-         真正的把關在後臺頁面本身（需輸入教師密碼）。 -->
-    <button class="ghostbtn teacherbtn" id="btn-teacher">🔐 教師分析後臺</button>
-
     <div class="lesson-box lessons">
       <h3><span>選擇課次</span><span id="lesson-hint"></span></h3>
       <div id="lesson-grid" class="lesson-grid"></div>
@@ -122,7 +135,7 @@
     </div>
 
 
-    <div class="lesson-box raid" id="raid-box" hidden>
+    <div class="lesson-box raid" id="raid-box" data-fold="raid" data-fold-default="1" hidden>
       <h3><span>全班討伐</span><span id="raid-cls"></span></h3>
       <div class="raid-body">
         <div class="raid-port"><img id="raid-img" alt="" referrerpolicy="no-referrer"></div>
@@ -136,7 +149,7 @@
       <p class="raid-reward" id="raid-reward"></p>
     </div>
 
-    <div class="lesson-box games" data-fold="games">
+    <div class="lesson-box games" data-fold="games" data-fold-default="1">
       <h3><span>遊戲設定</span><span id="games-sum"></span></h3>
       <p class="opt-label">難度</p>
       <div class="opt-row" id="diff-row">
@@ -158,6 +171,14 @@
       </div>
     </div>
 
+    <!-- 頁尾精簡工具列（教師入口刻意放在登入區外，不必先用學生帳號登入也看得到） -->
+    <nav class="home-tools" aria-label="其他功能">
+      <button type="button" class="toolbtn" id="btn-home-rules">📖 遊戲規則</button>
+      <button type="button" class="toolbtn" id="btn-home-codex">📋 角色清冊</button>
+      <button type="button" class="toolbtn" id="btn-demo" title="電腦自動示範一場對戰">▶ 展示模式</button>
+      <button type="button" class="toolbtn teacherbtn" id="btn-teacher">🔐 教師分析後臺</button>
+    </nav>
+
     <details class="copyright">
       <summary>本作品由<b>新北市私立南山高級中學　闕宏宇老師</b>設計製作，供校內國語文教學使用。<i>著作權說明</i></summary>
       遊戲角色取材自神話、傳說、歷史人物與古典小說，經重新設計為本作品的原創角色；
@@ -169,10 +190,7 @@
 
     <div class="home-actions">
       <button class="cta" id="btn-goto-select">選擇角色，開始挑戰</button>
-      <button class="ghostbtn" id="btn-home-rules" style="margin-top:0">📖 遊戲規則</button>
-      <button class="ghostbtn" id="btn-home-codex" style="margin-top:0">📋 角色清冊</button>
       <button class="ghostbtn duel-entry" id="btn-duel" style="margin-top:0">⚔️ 雙人對戰</button>
-      <button class="ghostbtn" id="btn-demo" style="margin-top:0">▶ 展示模式（電腦自動示範）</button>
     </div>
   </div>
 </div>
@@ -609,12 +627,27 @@
       </div>
     </section>
 
+    <section class="duel-view" data-view="guest">
+      <div class="duel-card duel-center duel-guest-card">
+        <h3 class="duel-guest-title">雙人對戰登入</h3>
+        <p class="duel-sub">友校來賓請輸入現場公布的今日 4 碼訪客代碼（系統會自動配發訪客編號，僅限今日雙人對戰體驗）。</p>
+        <div class="duel-join duel-guest-row">
+          <input id="duel-guest-code" inputmode="numeric" maxlength="4" placeholder="4 碼訪客代碼" autocomplete="off">
+          <button type="button" class="cta" id="duel-guest-go">進入對戰</button>
+        </div>
+        <p class="duel-err" id="duel-guest-err" hidden></p>
+        <div class="duel-guest-sep"><span>或</span></div>
+        <button type="button" class="ghostbtn" id="duel-school-login">🏫 用南山學校帳號登入</button>
+      </div>
+    </section>
+
     <section class="duel-view" data-view="lobby">
       <div class="duel-card duel-me">
         <div class="duel-tier"><b id="duel-tier">見習</b><span id="duel-rating">1000</span></div>
         <div class="duel-rec">
           <p id="duel-record">0 勝 0 敗 0 和</p>
           <p id="duel-today">今天已計分 0 / 5 場</p>
+          <button type="button" class="duel-guest-out" id="duel-guest-logout" hidden>登出訪客</button>
         </div>
       </div>
       <div class="duel-card">
@@ -763,7 +796,7 @@
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/04-lore.js?v=30065daf5a"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/05-art.js?v=e2525b272a"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/06-spirits.js?v=8579046ec6"></script>
-<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/07-semester.js?v=a34ff8cf40"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/07-semester.js?v=94135b3dc8"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/08-lessons.js?v=220611f3ef"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/09-audio.js?v=41741401a1"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/10-bgm.js?v=391159bfef"></script>
@@ -779,7 +812,7 @@
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/20-battle-forms.js?v=f30c165f04"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/21-battle-turn.js?v=f30456e921"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/22-save.js?v=1444aaa1ed"></script>
-<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/23-growth.js?v=911c95ecfe"></script>
+<script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/23-growth.js?v=364bcfd60c"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/24-result.js?v=ec345ebd0f"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/24b-home-fold.js?v=ed0bccb729"></script>
 <script src="https://s90194yeu-collab.github.io/atkqa-game/js/game/25-start.js?v=33135afd2a"></script>

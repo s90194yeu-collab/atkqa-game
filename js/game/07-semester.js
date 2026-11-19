@@ -86,6 +86,8 @@ function paintLogin(){
       const b = document.createElement('code'); b.textContent = '@' + x; d.appendChild(b);
     });
   }
+  if(typeof duelSyncGuestHome === 'function') duelSyncGuestHome();
+  else if($('guest-login-area')) $('guest-login-area').hidden = true;
 }
 
 function loadSemester(){

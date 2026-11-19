@@ -671,5 +671,5 @@ $('duel-next').onclick = duelSendReady;
 $('duel-surrender').onclick = function(){
   if(!DU.mid) return;
   if(!confirm('確定要投降嗎？本場會判定落敗。')) return;
-  duelGas('duelForfeit', DU.mid).catch(function(e){ duelLog('投降失敗：' + e.message); });
+  duelGas('duelForfeit', DU.mid, duelGuestTok()).catch(function(e){ duelLog('投降失敗：' + e.message); });
 };

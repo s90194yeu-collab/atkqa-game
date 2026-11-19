@@ -1,6 +1,6 @@
 /* 【11-duel.css】雙人對戰畫面　（依檔名編號順序載入；只作用在 #scr-duel 與首頁的對戰按鈕） */
 
-.home-actions .duel-entry{
+.home-actions .duel-entry,.guest-active .duel-entry{
   background:linear-gradient(180deg,#fff 0%,#ffeef6 100%);
   border-color:var(--sakura);color:var(--sakura-dd);font-weight:800;
 }
@@ -24,6 +24,23 @@
   border:5px solid var(--paper-3);border-top-color:var(--sakura);animation:duelSpin 0.9s linear infinite;
 }
 @keyframes duelSpin{to{transform:rotate(360deg)}}
+
+/* ── 友校訪客登入 ── */
+.duel-guest-card{max-width:520px;margin:12px auto}
+.duel-guest-title{margin:0 0 6px;font-family:var(--display);font-weight:400;font-size:24px;color:var(--ink)}
+.duel-guest-row{max-width:420px;margin:12px auto 4px}
+.duel-guest-row input{font-size:20px}
+.duel-guest-row input::placeholder{letter-spacing:.04em;font-size:13.5px}
+.duel-guest-row .cta{padding:10px 20px;min-height:0;white-space:nowrap}
+.duel-guest-sep{
+  position:relative;margin:16px 0 12px;text-align:center;color:var(--dim);font-size:12.5px;
+}
+.duel-guest-sep::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px dashed var(--line)}
+.duel-guest-sep span{position:relative;background:#fff;padding:0 12px}
+.duel-guest-out{
+  display:inline-block;margin-top:4px;padding:0;border:0;background:none;
+  color:var(--dim);font-size:12.5px;text-decoration:underline;cursor:pointer;
+}
 
 /* ── 大廳 ── */
 .duel-me{display:flex;align-items:center;gap:16px}

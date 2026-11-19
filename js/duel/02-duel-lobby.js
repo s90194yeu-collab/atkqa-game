@@ -43,11 +43,26 @@ async function duelOpen(){
   show('scr-duel');
   window.DUEL_BGM = 'menu'; BGM.auto('scr-duel');
   duelMsg('連線中⋯⋯');
+  const prevGuestTeam = (DU.info && DU.info.guest && DU.info.lastTeam && DU.info.lastTeam.length)
+    ? DU.info.lastTeam.slice() : null;
   try{
-    const info = await duelGas('duelEnter');
-    if(!info || !info.ok){ duelMsg((info && info.msg) || '目前無法進入雙人對戰。', true); return; }
+    const info = await duelGas('duelEnter', duelGuestTok());
+    if(!info || !info.ok){
+      if(info && info.reason === 'login'){
+        duelGuestClear();
+        DU.guestChecked = false;
+        duelSyncGuestHome();
+        if($('duel-guest-err')) $('duel-guest-err').hidden = true;
+        if($('duel-guest-code')) $('duel-guest-code').value = '';
+        duelView('guest');
+        return;
+      }
+      duelMsg((info && info.msg) || '目前無法進入雙人對戰。', true);
+      return;
+    }
     await Promise.all([duelLoadSdk(), duelLoadChars()]);
     await duelConnect(info.token);
+    if(info.guest && prevGuestTeam && (!info.lastTeam || !info.lastTeam.length)) info.lastTeam = prevGuestTeam;
     DU.info = info; DU.uid = info.uid;
     duelPaintRules(info.rules);
     $('duel-lesson').textContent = '';
@@ -57,6 +72,81 @@ async function duelOpen(){
     console.error('[duel]', e);
     duelMsg('無法進入雙人對戰：' + (e.message || e), true);
   }
+}
+
+/* ── 友校訪客登入 ── */
+function duelSyncGuestHome(){
+  const area = $('guest-login-area');
+  if(!area) return;
+  if(!inGAS || (ME && ME.allowed)){ area.hidden = true; return; }
+  area.hidden = false;
+  const g = DU.guest;
+  if(g && g.token){
+    if(!DU.guestChecked){
+      DU.guestChecked = true;
+      duelGas('duelCheckGuest', g.token).then(function(r){
+        if(!r || !r.ok){
+          duelGuestClear();
+          DU.guestChecked = false;
+        }else{
+          duelGuestSave({ token: g.token, sid: r.sid || g.sid, ymd: r.ymd || g.ymd });
+        }
+        duelSyncGuestHome();
+      }).catch(function(){});
+    }
+    $('guest-form-home').hidden = true;
+    $('guest-active-home').hidden = false;
+    $('guest-active-text').textContent = '✅ 已以友校訪客登入：' + (g.sid || '訪客') + '（僅限今日雙人對戰）';
+  }else{
+    $('guest-form-home').hidden = false;
+    $('guest-active-home').hidden = true;
+  }
+}
+
+async function duelGuestSubmit(inId, btnId, errId, enterAfter){
+  const inp = $(inId), btn = $(btnId), err = $(errId);
+  if(!inp || !btn) return;
+  const code = duelNormCode(inp.value);
+  inp.value = code;
+  if(err) err.hidden = true;
+  if(code.length !== 4){
+    if(err){ err.textContent = '請輸入 4 位數字代碼。'; err.hidden = false; }
+    return;
+  }
+  sfx('select');
+  const oldTxt = btn.textContent;
+  btn.disabled = true; btn.textContent = '驗證中⋯⋯';
+  try{
+    const r = await duelGas('duelGuestLogin', code);
+    if(!r || !r.ok){
+      if(err){ err.textContent = (r && r.msg) || '訪客代碼不正確。'; err.hidden = false; }
+      btn.disabled = false; btn.textContent = oldTxt;
+      return;
+    }
+    duelGuestSave({ token: r.token, sid: r.sid, ymd: r.ymd });
+    DU.guestChecked = true;
+    inp.value = '';
+    btn.disabled = false; btn.textContent = oldTxt;
+    duelSyncGuestHome();
+    if(enterAfter) duelOpen();
+  }catch(e){
+    if(err){ err.textContent = '登入失敗：' + duelNetMsg(e); err.hidden = false; }
+    btn.disabled = false; btn.textContent = oldTxt;
+  }
+}
+
+function duelGuestLogout(fromDuel){
+  if(fromDuel && DU.mid && DU.pub && ['end', 'void'].indexOf(DU.pub.phase) < 0){
+    if(!confirm('對戰還在進行中，登出會判定投降（落敗）。確定要登出嗎？')) return;
+    duelGas('duelForfeit', DU.mid, duelGuestTok()).catch(function(){});
+    DU.pub = null;
+  }
+  duelGuestClear();
+  DU.guestChecked = false;
+  if(DU.info && DU.info.guest) DU.info = null;
+  try{ if(DU.app && DU.app.auth) DU.app.auth().signOut().catch(function(){}); }catch(e){}
+  duelSyncGuestHome();
+  if(fromDuel) duelBack();
 }
 
 /* 規則說明的數字跟著「對戰設定」工作表走（讀不到時用預設：50 秒、10 秒、10 題） */
@@ -77,10 +167,19 @@ function duelLobby(){
   window.DUEL_BGM = 'menu'; BGM.auto('scr-duel');
   duelView('lobby');
   const i = DU.info;
-  $('duel-tier').textContent = i.tier;
-  $('duel-rating').textContent = i.rating + ' 分';
-  $('duel-record').textContent = i.wins + ' 勝 ' + i.losses + ' 敗 ' + i.draws + ' 和（共 ' + i.games + ' 場）';
-  $('duel-today').textContent = '今天已計分 ' + i.todayCounted + ' / ' + i.dailyMax + ' 場';
+  if(i.guest){
+    $('duel-tier').textContent = '友校訪客';
+    $('duel-rating').textContent = i.sid;
+    $('duel-record').textContent = '系統配發編號：' + i.sid + '（今日有效）';
+    $('duel-today').textContent = '體驗場模式：不計段分與學期積分';
+    if($('duel-guest-logout')) $('duel-guest-logout').hidden = false;
+  }else{
+    $('duel-tier').textContent = i.tier;
+    $('duel-rating').textContent = i.rating + ' 分';
+    $('duel-record').textContent = i.wins + ' 勝 ' + i.losses + ' 敗 ' + i.draws + ' 和（共 ' + i.games + ' 場）';
+    $('duel-today').textContent = '今天已計分 ' + i.todayCounted + ' / ' + i.dailyMax + ' 場';
+    if($('duel-guest-logout')) $('duel-guest-logout').hidden = true;
+  }
   $('duel-lobby-err').hidden = true;
   if(!DU.choice){ try{ DU.choice = localStorage.getItem('atkqa_duel_choice') || DUEL_ANY; }catch(e){ DU.choice = DUEL_ANY; } }
   dsub('config', function(c){
@@ -157,7 +256,7 @@ function duelStartRandom(){
   const ask = async function(){
     if(DU.view !== 'wait') return;
     try{
-      const r = await duelGas('duelQueue', lesson);
+      const r = await duelGas('duelQueue', lesson, duelGuestTok());
       if(DU.view !== 'wait') return;
       if(r.status === 'matched') return duelEnterMatch(r.mid);
       if(r.status === 'closed'){ duelLobby(); return duelLobbyErr('對戰時段已經結束。'); }
@@ -173,7 +272,7 @@ function duelStopWaiting(tellServer){
   ['ask1', 'ask2'].forEach(function(k){ clearTimeout(DU.timers[k]); });
   if(DU.waitRef){ try{ DU.waitRef.onDisconnect().cancel(); DU.waitRef.remove(); }catch(e){} DU.waitRef = null; }
   if(DU.waitUserOff){ DU.waitUserOff(); DU.waitUserOff = null; }
-  if(tellServer) duelGas('duelLeave').catch(function(){});
+  if(tellServer) duelGas('duelLeave', duelGuestTok()).catch(function(){});
 }
 
 /* ── 房號 ── */
@@ -181,7 +280,7 @@ async function duelHost(){
   sfx('select');
   duelMsg('開房中⋯⋯');
   try{
-    const r = await duelGas('duelCreateRoom', DU.choice || DUEL_ANY);
+    const r = await duelGas('duelCreateRoom', DU.choice || DUEL_ANY, duelGuestTok());
     if(r.match) return duelEnterMatch(r.match);
     if(!r.ok){ duelLobby(); return duelLobbyErr(r.msg); }
     duelView('room');
@@ -203,7 +302,7 @@ async function duelJoin(){
   sfx('select');
   $('duel-join').disabled = true;
   try{
-    const r = await duelGas('duelJoinRoom', code);
+    const r = await duelGas('duelJoinRoom', code, duelGuestTok());
     if(r.ok) duelEnterMatch(r.mid);
     else duelLobbyErr(r.msg);
   }catch(e){ duelLobbyErr('加入失敗：' + e.message); }
@@ -348,7 +447,7 @@ async function duelSubmitTeam(){
   if(DU.teamSent || DU.team.length !== 8) return;
   $('duel-submit').disabled = true;
   try{
-    const r = await duelGas('duelSubmitTeam', DU.mid, DU.team.slice());
+    const r = await duelGas('duelSubmitTeam', DU.mid, DU.team.slice(), duelGuestTok());
     if(!r.ok){ $('duel-team-status').textContent = r.msg; $('duel-submit').disabled = false; return; }
     DU.teamSent = true; DU.info.lastTeam = DU.team.slice();
     sfx('perfect'); duelPaintTeam();
@@ -383,9 +482,15 @@ function duelResult(p){
       row('答對率', (a.rate || 0) + '%', (b.rate || 0) + '%') +
       row('擊倒對手', a.kos || 0, b.kos || 0) +
       row('剩餘體力', (a.hp || 0) + '%', (b.hp || 0) + '%');
-    $('duel-r-pts').innerHTML = (p.phase === 'void') ? '' :
-      '<div><small>對戰積分</small><b>+' + (a.pts || 0) + '</b><small>' + (a.counted ? '已加進學期積分' : '本場不計分') + '</small></div>' +
-      '<div><small>段分</small><b>' + (a.delta > 0 ? '+' : '') + (a.delta || 0) + '</b><small>' + (a.tier || '') + (a.rating ? '・' + a.rating : '') + '</small></div>';
+    if(p.phase === 'void'){
+      $('duel-r-pts').innerHTML = '';
+    }else if(r.guestMatch || (DU.info && DU.info.guest)){
+      $('duel-r-pts').innerHTML = '<div><small>友校參訪體驗場</small><b>不計分</b><small>不計段分與學期積分</small></div>';
+    }else{
+      $('duel-r-pts').innerHTML =
+        '<div><small>對戰積分</small><b>+' + (a.pts || 0) + '</b><small>' + (a.counted ? '已加進學期積分' : '本場不計分') + '</small></div>' +
+        '<div><small>段分</small><b>' + (a.delta > 0 ? '+' : '') + (a.delta || 0) + '</b><small>' + (a.tier || '') + (a.rating ? '・' + a.rating : '') + '</small></div>';
+    }
     const notes = [];
     if(r.note) notes.push(r.note);
     if(r.scoreError) notes.push(r.scoreError);
@@ -405,7 +510,7 @@ function duelResult(p){
 function duelBack(){
   if(DU.mid && DU.pub && ['end', 'void'].indexOf(DU.pub.phase) < 0){
     if(!confirm('對戰還在進行中，離開會判定投降（落敗）。確定要離開嗎？')) return;
-    duelGas('duelForfeit', DU.mid).catch(function(){});
+    duelGas('duelForfeit', DU.mid, duelGuestTok()).catch(function(){});
   }
   duelStopWaiting(DU.view === 'wait' || DU.view === 'room');
   dunsub('lobby'); dunsub('match');
@@ -431,3 +536,39 @@ $('duel-code-in').addEventListener('keydown', function(e){ if(e.key === 'Enter')
 $('duel-last').onclick = duelUseLast;
 $('duel-fill').onclick = duelFill;
 $('duel-submit').onclick = duelSubmitTeam;
+if($('btn-guest-home')) $('btn-guest-home').onclick = function(){ duelGuestSubmit('guest-code-home', 'btn-guest-home', 'guest-msg-home', false); };
+if($('guest-code-home')) $('guest-code-home').addEventListener('keydown', function(e){ if(e.key === 'Enter') duelGuestSubmit('guest-code-home', 'btn-guest-home', 'guest-msg-home', false); });
+if($('btn-guest-home-duel')) $('btn-guest-home-duel').onclick = function(){ sfx('tap'); duelOpen(); };
+if($('btn-guest-home-logout')) $('btn-guest-home-logout').onclick = function(){ sfx('tap'); duelGuestLogout(false); };
+if($('duel-guest-go')) $('duel-guest-go').onclick = function(){ duelGuestSubmit('duel-guest-code', 'duel-guest-go', 'duel-guest-err', true); };
+if($('duel-guest-code')) $('duel-guest-code').addEventListener('keydown', function(e){ if(e.key === 'Enter') duelGuestSubmit('duel-guest-code', 'duel-guest-go', 'duel-guest-err', true); });
+if($('duel-guest-logout')) $('duel-guest-logout').onclick = function(){ sfx('tap'); duelGuestLogout(true); };
+if($('duel-school-login')) $('duel-school-login').onclick = function(){
+  sfx('tap');
+  let back = (ME && ME.gameUrl) ? ME.gameUrl : '';
+  if(!back){
+    try{
+      const ref = document.referrer || '';
+      if(ref.indexOf('/macros/') >= 0) back = ref.split('?')[0].split('#')[0];
+    }catch(e){}
+  }
+  if(!back){
+    alert('還在取得遊戲網址，請稍等一兩秒再按一次。');
+    return;
+  }
+  const u = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(back);
+  const err = $('duel-guest-err');
+  if(err){
+    err.hidden = false;
+    err.textContent = '正在前往 Google 登入頁，選好學校帳號後會自動回到遊戲。沒有跳轉的話請';
+    const alt = document.createElement('a');
+    alt.href = u; alt.target = '_blank'; alt.rel = 'noopener';
+    alt.textContent = '點這裡另開登入頁';
+    alt.style.cssText = 'color:var(--sakura-d,#e0559b);font-weight:700;text-decoration:underline';
+    err.appendChild(alt);
+  }
+  const a = document.createElement('a');
+  a.href = u; a.target = '_top';
+  document.body.appendChild(a); a.click(); a.remove();
+};
+duelSyncGuestHome();
